@@ -1,0 +1,36 @@
+{
+  "name": "flux-boilerplate",
+  "version": "0.0.1",
+  "description": "My basic Flux Boilerplate",
+  "main": "js/app.js",
+  "scripts": {
+    "start": "watchify -o js/bundle.js -v -d js/app.js",
+    "build": "browserify . | uglify -cm > js/bundle.min.js"
+  },
+  "author": "Matt Thomson<red.cataclysm@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "reactify": "^1.1.1",
+    "uglify-js": "^2.6.2",
+    "watchify": "^3.7.0"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "reactify",
+        {
+          "es6": true
+        }
+      ]
+    ]
+  },
+  "dependencies": {
+    "classnames": "^2.2.3",
+    "flux": "^2.1.1",
+    "keymirror": "^0.1.1",
+    "object-assign": "^4.0.1",
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7"
+  }
+}
