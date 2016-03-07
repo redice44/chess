@@ -33,7 +33,7 @@
       return (
         <div className = {classNames({
           'black': this.props.color === 'b'
-        })}>{this.props.color}
+        })}>{this.props.piece}
         </div>
       );
     }

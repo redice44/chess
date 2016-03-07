@@ -12,17 +12,18 @@
     };
   }
 
-  function getTileColor(v) {
-    return v === 'b' ? true : false;
-  }
+  function generateBoard(colors, pieces) {
+    let board = [];
+    colors.forEach((v, i) => {
+      board.push({color: v, piece: pieces[i]});
+    });
 
-  function generateBoard(row) {
-    return row.map(generateTile);
+    return board.map(generateTile);
   }
 
   function generateTile(tile) {
     return (
-        <Tile color = {tile} />
+        <Tile color = {tile.color} piece = {tile.piece} />
       );
   }
 
@@ -44,9 +45,13 @@
     }
 
     render() {
-      let boardColorGrid = 'bwbwbwbw,wbwbwbwb,'.repeat(4).split('').reverse().join('').substring(1).split('').reverse().join('').split(',').map((v) => v.split(''));
-      console.log(boardColorGrid);
-      let boardGrid = boardColorGrid.map(generateBoard);
+      let boardColorGrid = 'bwbwbwbwwbwbwbwb'.repeat(4);
+      boardColorGrid = boardColorGrid.split('');
+
+      let boardPieceGrid = 'RNBKQBNRPPPPPPPP' + '        '.repeat(4) + 'PPPPPPPPRNBQKBNR';
+      boardPieceGrid.split('');
+
+      let boardGrid = generateBoard(boardColorGrid, boardPieceGrid);
       return (
         <div id='board'>
           {boardGrid}
