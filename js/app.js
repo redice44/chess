@@ -3,10 +3,10 @@
 
   const React = require('react');
   const ReactDOM = require('react-dom');
-  const App = require('./components/App.js');
+  const Board = require('./components/board/BoardComponent.js');
   
   ReactDOM.render(
-    <App />,
+    <Board />,
     document.getElementById('react')
   );
 })();
