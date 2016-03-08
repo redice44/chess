@@ -46,5 +46,6 @@ export let Pieces =
 
 export const PieceTypes = 
   keyMirror({
+    PIECE: null,
     KNIGHT: null
   });

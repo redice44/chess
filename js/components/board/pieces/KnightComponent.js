@@ -56,6 +56,6 @@ class Knight extends Component {
   }
 }
 
-export default DragSource(PieceTypes.KNIGHT, knightSource, collect)(Knight);
+export default DragSource(PieceTypes.PIECE, knightSource, collect)(Knight);
 
 

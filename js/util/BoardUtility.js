@@ -1,6 +1,6 @@
 'use strict';
 
-import { Pieces } from './../constants/ChessConstants.js';
+import { Pieces, PieceTypes } from './../constants/ChessConstants.js';
 import { convertPositionToIndex } from './PositionUtility.js';
 
 export function setupBoard() {
@@ -13,3 +13,15 @@ export function setupBoard() {
   board[Pieces.WHITE_KNIGHT_2] = convertPositionToIndex(6, 7);
   return board;
 };
+
+export function getPieceType(id) {
+  switch (id) {
+    case Pieces.BLACK_KNIGHT_1:
+    case Pieces.BLACK_KNIGHT_2:
+    case Pieces.WHITE_KNIGHT_1:
+    case Pieces.WHITE_KNIGHT_2:
+      return PieceTypes.KNIGHT;
+    default:
+      // Do Nothing
+  }
+}

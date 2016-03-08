@@ -6,9 +6,10 @@ import HTML5Backend from 'react-dnd-html5-backend';
 
 import Tile from './TileComponent.js';
 import Knight from './pieces/KnightComponent.js';
-import { Pieces } from './../../constants/ChessConstants.js';
+import { Pieces, PieceTypes } from './../../constants/ChessConstants.js';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
 import { convertIndexToPosition } from './../../util/PositionUtility.js';
+import { getPieceType } from './../../util/BoardUtility.js';
 
 function getStateFromStore() {
   return {
@@ -66,16 +67,14 @@ class Board extends Component {
     );
   }
 
-  _renderPiece(i, pieceType) {
+  _renderPiece(i, id) {
     const [x, y] = convertIndexToPosition(i);
     let piece = null;
+    const pieceType = getPieceType(id)
 
     switch(pieceType) {
-      case Pieces.BLACK_KNIGHT_1:
-      case Pieces.BLACK_KNIGHT_2:
-      case Pieces.WHITE_KNIGHT_1:
-      case Pieces.WHITE_KNIGHT_2:
-        piece = <Knight id = {pieceType} />;
+      case PieceTypes.KNIGHT:
+        piece = <Knight id = {id} />;
         break;
       default:
         // do nothing

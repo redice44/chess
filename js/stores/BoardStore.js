@@ -5,6 +5,7 @@ import { EventEmitter } from 'events';
 import ChessDispatcher from './../dispatcher/ChessDispatcher.js';
 import { ActionTypes, Pieces, PieceTypes } from './../constants/ChessConstants.js';
 import { convertIndexToPosition, convertPositionToIndex } from './../util/PositionUtility.js';
+import { getPieceType } from './../util/BoardUtility.js';
 
 const CHANGE_EVENT = 'change';
 
@@ -28,11 +29,9 @@ let BoardStore = assign({}, EventEmitter.prototype, {
   },
 
   canMove: function(toX, toY, item) {
-    switch(item.id) {
-      case Pieces.BLACK_KNIGHT_1:
-      case Pieces.BLACK_KNIGHT_2:
-      case Pieces.WHITE_KNIGHT_1:
-      case Pieces.WHITE_KNIGHT_2:
+    const pieceType = getPieceType(item.id);
+    switch(pieceType) {
+      case PieceTypes.KNIGHT:
         const [x, y] = convertIndexToPosition(boardLayout[item.id]);
         let dx = Math.abs(toX - x);
         let dy = Math.abs(toY - y);

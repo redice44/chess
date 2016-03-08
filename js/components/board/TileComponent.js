@@ -91,4 +91,4 @@ Tile.propTypes = {
   y: PropTypes.number.isRequired
 };
 
-export default DropTarget(PieceTypes.KNIGHT, squareTarget, collect)(Tile);
+export default DropTarget(PieceTypes.PIECE, squareTarget, collect)(Tile);
