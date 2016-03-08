@@ -3,12 +3,12 @@
 import assign from 'object-assign';
 import { EventEmitter } from 'events';
 import ChessDispatcher from './../dispatcher/ChessDispatcher.js';
-import ChessConstants from './../constants/ChessConstants.js';
+import { ActionTypes, Pieces } from './../constants/ChessConstants.js';
 
-const ActionTypes = ChessConstants.ActionTypes;
 const CHANGE_EVENT = 'change';
 
-let _knightPos = [1, 0];
+let blackPieces = Pieces;
+blackPieces[Pieces.KNIGHT_1] = [1, 0];
 
 let BoardStore = assign({}, EventEmitter.prototype, {
   emitChange: function() {
@@ -24,7 +24,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
   },
 
   getKnightPosition: function() {
-    return _knightPos;
+    return blackPieces[Pieces.KNIGHT_1];
   },
 });
 
@@ -32,7 +32,7 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
   switch(action.type) {
     case ActionTypes.BOARD_UPDATE:
       // valid knight move
-      _knightPos = action.pos;
+      blackPieces[Pieces.KNIGHT_1] = action.pos;
       BoardStore.emitChange();
       break;
     default:

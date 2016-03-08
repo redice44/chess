@@ -1,6 +1,21 @@
 'use strict';
 
 import React, { Component } from 'react';
+import { DragSource } from 'react-dnd';
+import { ItemTypes } from './../../../constants/ChessConstants.js';
+
+const knightSource = {
+  beginDrag() {
+    return {};
+  }
+};
+
+function collect(connect, monitor) {
+  return {
+    connectDragSource: connect.dragSource(),
+    isDragging: monitor.isDragging()
+  };
+}
 
 function getStateFromStore() {
   return {
@@ -8,7 +23,7 @@ function getStateFromStore() {
   };
 }
 
-export default class KnightPiece extends Component {
+class Knight extends Component {
   constructor(props) {
     super(props);
     this.state = getStateFromStore();
@@ -26,8 +41,13 @@ export default class KnightPiece extends Component {
   }
 
   render() {
-    return (
-      <span>&#9816;</span>
+    const { connectDragSource, isDragging } = this.props;
+    return connectDragSource(
+      <div style={{
+        opacity: isDragging ? 0.5 : 1
+      }}>
+      &#9816;
+      </div>
     );
   }
 
@@ -35,3 +55,7 @@ export default class KnightPiece extends Component {
     this.setState(getStateFromStore());
   }
 }
+
+export default DragSource(ItemTypes.KNIGHT, knightSource, collect)(Knight);
+
+

@@ -1,9 +1,13 @@
 'use strict';
 
 import React, { Component, PropTypes } from 'react';
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
+
 import Square from './SquareComponent.js';
 import Knight from './pieces/KnightComponent.js';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
+import { convertIndexToPosition } from './../../util/PositionUtility.js';
 
 function getStateFromStore() {
   return {
@@ -11,7 +15,7 @@ function getStateFromStore() {
   };
 }
 
-export default class Board extends Component {
+class Board extends Component {
   constructor(props) {
     super(props);
     this.state = getStateFromStore();
@@ -44,8 +48,7 @@ export default class Board extends Component {
   }
 
   _renderSquare(i) {
-    const x = i % 8;
-    const y = Math.floor(i / 8);
+    const [x, y] = convertIndexToPosition(i);
     const black = (x + y) % 2 === 1;
 
     const [knightX, knightY] = this.props.knightPosition;
@@ -75,3 +78,5 @@ Board.propTypes = {
     PropTypes.number.isRequired
   ).isRequired
 };
+
+export default DragDropContext(HTML5Backend)(Board);

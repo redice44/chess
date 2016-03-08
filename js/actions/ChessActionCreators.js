@@ -1,9 +1,7 @@
 'use strict';
 
 import ChessDispatcher from './../dispatcher/ChessDispatcher.js';
-import ChessConstants from './../constants/ChessConstants.js';
-
-const ActionTypes = ChessConstants.ActionTypes;
+import { ActionTypes } from './../constants/ChessConstants.js';
 
 export default {
   moveKnight: function(payload) {
