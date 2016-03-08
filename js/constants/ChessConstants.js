@@ -31,4 +31,4 @@ export let Pieces = {
 
 export const ItemTypes = {
   KNIGHT: 'knight'
-}
+};

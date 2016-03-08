@@ -4,7 +4,7 @@ import React, { Component, PropTypes } from 'react';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 
-import Square from './SquareComponent.js';
+import Tile from './TileComponent.js';
 import Knight from './pieces/KnightComponent.js';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
 import { convertIndexToPosition } from './../../util/PositionUtility.js';
@@ -57,9 +57,9 @@ class Board extends Component {
     return (
       <div key={i}
         onClick={() => this._handleSquareClick(x, y)}>
-        <Square black = {black}>
+        <Tile x = {x} y = {y}>
           {piece}
-        </Square>
+        </Tile>
       </div>
     );
   }

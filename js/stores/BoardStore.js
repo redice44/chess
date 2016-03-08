@@ -26,6 +26,15 @@ let BoardStore = assign({}, EventEmitter.prototype, {
   getKnightPosition: function() {
     return blackPieces[Pieces.KNIGHT_1];
   },
+
+  canMoveKnight: function(toX, toY) {
+    const [x, y] = blackPieces[Pieces.KNIGHT_1];
+    let dx = Math.abs(toX - x);
+    let dy = Math.abs(toY - y);
+
+    return (dx === 2 && dy === 1) ||
+           (dx === 1 && dy === 2);
+  }
 });
 
 BoardStore.dispatchToken = ChessDispatcher.register((action) => {
