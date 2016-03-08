@@ -3,12 +3,12 @@
 import assign from 'object-assign';
 import { EventEmitter } from 'events';
 import ChessDispatcher from './../dispatcher/ChessDispatcher.js';
-import { ActionTypes, Pieces } from './../constants/ChessConstants.js';
+import { ActionTypes, Pieces, PieceTypes } from './../constants/ChessConstants.js';
+import { convertIndexToPosition, convertPositionToIndex } from './../util/PositionUtility.js';
 
 const CHANGE_EVENT = 'change';
 
-let blackPieces = Pieces;
-blackPieces[Pieces.KNIGHT_1] = [1, 0];
+let boardLayout = {};
 
 let BoardStore = assign({}, EventEmitter.prototype, {
   emitChange: function() {
@@ -23,25 +23,36 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     this.removeListener(CHANGE_EVENT, callback);
   },
 
-  getKnightPosition: function() {
-    return blackPieces[Pieces.KNIGHT_1];
+  getLayout: function() {
+    return boardLayout;
   },
 
-  canMoveKnight: function(toX, toY) {
-    const [x, y] = blackPieces[Pieces.KNIGHT_1];
-    let dx = Math.abs(toX - x);
-    let dy = Math.abs(toY - y);
-
-    return (dx === 2 && dy === 1) ||
-           (dx === 1 && dy === 2);
+  canMove: function(toX, toY, item) {
+    switch(item.id) {
+      case Pieces.BLACK_KNIGHT_1:
+      case Pieces.BLACK_KNIGHT_2:
+      case Pieces.WHITE_KNIGHT_1:
+      case Pieces.WHITE_KNIGHT_2:
+        const [x, y] = convertIndexToPosition(boardLayout[item.id]);
+        let dx = Math.abs(toX - x);
+        let dy = Math.abs(toY - y);
+        return (dx === 2 && dy === 1) ||
+               (dx === 1 && dy === 2);
+      default:
+        return false;
+    }
   }
 });
 
 BoardStore.dispatchToken = ChessDispatcher.register((action) => {
   switch(action.type) {
     case ActionTypes.BOARD_UPDATE:
-      // valid knight move
-      blackPieces[Pieces.KNIGHT_1] = action.pos;
+      console.log(action);
+      boardLayout = action.layout;
+      BoardStore.emitChange();
+      break;
+    case ActionTypes.PIECE_UPDATE:
+      boardLayout[action.id] = action.pos;
       BoardStore.emitChange();
       break;
     default:

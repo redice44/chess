@@ -7,7 +7,7 @@ import BoardStore from './../stores/BoardStore.js';
 function getStateFromStore() {
   return {
     // store getters
-    knightPosition: BoardStore.getKnightPosition()
+    layout: BoardStore.getLayout()
   };
 }
 
@@ -29,9 +29,9 @@ export default class Game extends Component {
   }
 
   render() {
-    const pos = this.state.knightPosition; //[Math.floor(Math.random() * 8), Math.floor(Math.random() * 8)];
+    const layout = this.state.layout;
     return (
-      <Board knightPosition={pos} />
+      <Board layout={layout} />
     );
   }
 

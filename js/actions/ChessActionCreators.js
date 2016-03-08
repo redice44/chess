@@ -4,10 +4,18 @@ import ChessDispatcher from './../dispatcher/ChessDispatcher.js';
 import { ActionTypes } from './../constants/ChessConstants.js';
 
 export default {
-  moveKnight: function(payload) {
+  setupBoard: function(layout) {
     ChessDispatcher.dispatch({
       type: ActionTypes.BOARD_UPDATE,
-      pos: payload
+      layout: layout
+    });
+  },
+
+  move: function(pos, item) {
+    ChessDispatcher.dispatch({
+      type: ActionTypes.PIECE_UPDATE,
+      pos: pos,
+      id: item.id
     });
   }
 };

@@ -3,18 +3,19 @@
 import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
 import Square from './SquareComponent.js';
-import { ItemTypes } from './../../constants/ChessConstants.js';
+import { PieceTypes } from './../../constants/ChessConstants.js';
 import { DropTarget } from 'react-dnd';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
 import BoardStore from './../../stores/BoardStore.js';
+import { convertPositionToIndex } from './../../util/PositionUtility.js';
 
 const squareTarget = {
-  canDrop(props) {
-    return BoardStore.canMoveKnight(props.x, props.y);
+  canDrop(props, monitor) {
+    return BoardStore.canMove(props.x, props.y, monitor.getItem());
   },
 
-  drop(props) {
-    ChessActionCreator.moveKnight([props.x, props.y]);
+  drop(props, monitor) {
+    ChessActionCreator.move(convertPositionToIndex(props.x, props.y), monitor.getItem());
   }
 };
 
@@ -90,4 +91,4 @@ Tile.propTypes = {
   y: PropTypes.number.isRequired
 };
 
-export default DropTarget(ItemTypes.KNIGHT, squareTarget, collect)(Tile);
+export default DropTarget(PieceTypes.KNIGHT, squareTarget, collect)(Tile);

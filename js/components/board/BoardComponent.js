@@ -6,6 +6,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 
 import Tile from './TileComponent.js';
 import Knight from './pieces/KnightComponent.js';
+import { Pieces } from './../../constants/ChessConstants.js';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
 import { convertIndexToPosition } from './../../util/PositionUtility.js';
 
@@ -35,9 +36,15 @@ class Board extends Component {
 
   render() {
     let Squares = [];
+    let pieces = this.props.layout;
     
     for (let i = 0; i < 64; i++) {
       Squares.push(this._renderSquare(i));
+    }
+
+    for (let prop in pieces) {
+      console.log(prop, pieces[prop]);
+      Squares[pieces[prop]] = this._renderPiece(pieces[prop], prop);
     }
 
     return (
@@ -49,10 +56,30 @@ class Board extends Component {
 
   _renderSquare(i) {
     const [x, y] = convertIndexToPosition(i);
-    const black = (x + y) % 2 === 1;
 
-    const [knightX, knightY] = this.props.knightPosition;
-    const piece = (x === knightX && y === knightY) ? <Knight /> : null;
+    return (
+      <div key={i}
+        onClick={() => this._handleSquareClick(x, y)}>
+        <Tile x = {x} y = {y}>
+        </Tile>
+      </div>
+    );
+  }
+
+  _renderPiece(i, pieceType) {
+    const [x, y] = convertIndexToPosition(i);
+    let piece = null;
+
+    switch(pieceType) {
+      case Pieces.BLACK_KNIGHT_1:
+      case Pieces.BLACK_KNIGHT_2:
+      case Pieces.WHITE_KNIGHT_1:
+      case Pieces.WHITE_KNIGHT_2:
+        piece = <Knight id = {pieceType} />;
+        break;
+      default:
+        // do nothing
+    }
 
     return (
       <div key={i}
@@ -72,11 +99,5 @@ class Board extends Component {
     this.setState(getStateFromStore());
   }
 }
-
-Board.propTypes = {
-  knightPosition: PropTypes.arrayOf(
-    PropTypes.number.isRequired
-  ).isRequired
-};
 
 export default DragDropContext(HTML5Backend)(Board);

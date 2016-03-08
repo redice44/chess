@@ -2,11 +2,11 @@
 
 import React, { Component } from 'react';
 import { DragSource } from 'react-dnd';
-import { ItemTypes } from './../../../constants/ChessConstants.js';
+import { PieceTypes } from './../../../constants/ChessConstants.js';
 
 const knightSource = {
-  beginDrag() {
-    return {};
+  beginDrag(props) {
+    return { id: props.id };
   }
 };
 
@@ -56,6 +56,6 @@ class Knight extends Component {
   }
 }
 
-export default DragSource(ItemTypes.KNIGHT, knightSource, collect)(Knight);
+export default DragSource(PieceTypes.KNIGHT, knightSource, collect)(Knight);
 
 
