@@ -1,68 +1,75 @@
-(function() {
-  'use strict';
+'use strict';
 
-  const React = require('react');
-  const Tile = require('./TileComponent.js');
-  //const ExampleStore = require('./../stores/ExampleStore.js');
+import React, { Component, PropTypes } from 'react';
+import Square from './SquareComponent.js';
+import Knight from './pieces/KnightComponent.js';
 
+function getStateFromStore() {
+  return {
+    // store getters
+  };
+}
 
-  function getStateFromStore() {
-    return {
-      // store getters
-    };
+export default class Board extends Component {
+  constructor(props) {
+    super(props);
+    this.state = getStateFromStore();
+
+    // Binding this
+    this._onChange = this._onChange.bind(this);
   }
 
-  function generateBoard(colors, pieces) {
-    let board = [];
-    colors.forEach((v, i) => {
-      board.push({color: v, piece: pieces[i]});
-    });
-
-    return board.map(generateTile);
+  componentDidMount() {
+    //ExampleStore.addChangeListener(this._onChange);
   }
 
-  function generateTile(tile) {
+  componentWillUnmount() {
+    //ExampleStore.removeChangeListener(this._onChange);
+  }
+
+  render() {
+    let Squares = [];
+    
+    for (let i = 0; i < 64; i++) {
+      Squares.push(this._renderSquare(i));
+    }
+
     return (
-        <Tile color = {tile.color} piece = {tile.piece} />
-      );
+      <div id='board'>
+        {Squares}
+      </div>
+    );
   }
 
-  class Board extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = getStateFromStore();
+  _renderSquare(i) {
+    const x = i % 8;
+    const y = Math.floor(i / 8);
+    const black = (x + y) % 2 === 1;
 
-      // Binding this
-      this._onChange = this._onChange.bind(this);
-    }
+    const [knightX, knightY] = this.props.knightPosition;
+    const piece = (x === knightX && y === knightY) ? <Knight /> : null;
 
-    componentDidMount() {
-      //ExampleStore.addChangeListener(this._onChange);
-    }
-
-    componentWillUnmount() {
-      //ExampleStore.removeChangeListener(this._onChange);
-    }
-
-    render() {
-      let boardColorGrid = 'bwbwbwbwwbwbwbwb'.repeat(4);
-      boardColorGrid = boardColorGrid.split('');
-
-      let boardPieceGrid = 'RNBKQBNRPPPPPPPP' + '        '.repeat(4) + 'PPPPPPPPRNBQKBNR';
-      boardPieceGrid.split('');
-
-      let boardGrid = generateBoard(boardColorGrid, boardPieceGrid);
-      return (
-        <div id='board'>
-          {boardGrid}
-        </div>
-      );
-    }
-
-    _onChange() {
-      this.setState(getStateFromStore());
-    }
+    return (
+      <div key={i}
+        onClick={() => this._handleSquareClick(x, y)}>
+        <Square black = {black}>
+          {piece}
+        </Square>
+      </div>
+    );
   }
 
-  module.exports = Board;
-})();
+  _handleSquareClick(x, y) {
+    
+  }
+
+  _onChange() {
+    this.setState(getStateFromStore());
+  }
+}
+
+Board.propTypes = {
+  knightPosition: PropTypes.arrayOf(
+    PropTypes.number.isRequired
+  ).isRequired
+};

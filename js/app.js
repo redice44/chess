@@ -1,12 +1,10 @@
-(function() {
-  'use strict';
+'use strict';
 
-  const React = require('react');
-  const ReactDOM = require('react-dom');
-  const Board = require('./components/board/BoardComponent.js');
-  
-  ReactDOM.render(
-    <Board />,
-    document.getElementById('react')
-  );
-})();
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Board from './components/board/BoardComponent.js';
+
+ReactDOM.render(
+  <Board knightPosition={[3,0]} />
+  , document.getElementById('react')
+);
