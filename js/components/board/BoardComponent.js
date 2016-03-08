@@ -3,6 +3,7 @@
 import React, { Component, PropTypes } from 'react';
 import Square from './SquareComponent.js';
 import Knight from './pieces/KnightComponent.js';
+import ChessActionCreator from './../../actions/ChessActionCreators.js';
 
 function getStateFromStore() {
   return {
@@ -16,6 +17,7 @@ export default class Board extends Component {
     this.state = getStateFromStore();
 
     // Binding this
+    this._renderSquare = this._renderSquare.bind(this);
     this._onChange = this._onChange.bind(this);
   }
 
@@ -60,7 +62,7 @@ export default class Board extends Component {
   }
 
   _handleSquareClick(x, y) {
-    
+    ChessActionCreator.moveKnight([x, y]);
   }
 
   _onChange() {

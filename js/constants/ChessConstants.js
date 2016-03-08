@@ -5,7 +5,7 @@
 
   module.exports = {
     ActionTypes: keyMirror({
-      EXAMPLE: null
+      BOARD_UPDATE: null
     })
   };
 

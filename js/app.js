@@ -2,9 +2,9 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Board from './components/board/BoardComponent.js';
+import Game from './components/GameComponent.js';
 
 ReactDOM.render(
-  <Board knightPosition={[3,0]} />
+  <Game />
   , document.getElementById('react')
 );
