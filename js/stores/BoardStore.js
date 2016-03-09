@@ -30,6 +30,15 @@ let BoardStore = assign({}, EventEmitter.prototype, {
 
   canMove: function(toX, toY, item) {
     const pieceType = getPieceType(item.id);
+    let toIndex = convertPositionToIndex(toX, toY);
+    for (let prop in boardLayout) {
+      // If there is a piece collision
+      // Will update for piece capture
+      if (boardLayout[prop] === toIndex) {
+        return false;
+      }
+    }
+
     switch(pieceType) {
       case PieceTypes.KNIGHT:
         const [x, y] = convertIndexToPosition(boardLayout[item.id]);

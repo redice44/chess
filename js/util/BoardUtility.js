@@ -1,6 +1,6 @@
 'use strict';
 
-import { Pieces, PieceTypes } from './../constants/ChessConstants.js';
+import { Pieces, PieceTypes, PieceColors } from './../constants/ChessConstants.js';
 import { convertPositionToIndex } from './PositionUtility.js';
 
 export function setupBoard() {
@@ -21,6 +21,47 @@ export function getPieceType(id) {
     case Pieces.WHITE_KNIGHT_1:
     case Pieces.WHITE_KNIGHT_2:
       return PieceTypes.KNIGHT;
+    default:
+      // Do Nothing
+  }
+}
+
+export function getPieceColor(id) {
+  switch(id) {
+    case BLACK_ROOK_1:
+    case BLACK_ROOK_2:
+    case BLACK_KNIGHT_1:
+    case BLACK_KNIGHT_2:
+    case BLACK_BISHOP_1:
+    case BLACK_BISHOP_2:
+    case BLACK_QUEEN:
+    case BLACK_KING:
+    case BLACK_PAWN_1:
+    case BLACK_PAWN_2:
+    case BLACK_PAWN_3:
+    case BLACK_PAWN_4:
+    case BLACK_PAWN_5:
+    case BLACK_PAWN_6:
+    case BLACK_PAWN_7:
+    case BLACK_PAWN_8:
+      return PieceColors.BLACK;
+    case WHITE_ROOK_1:
+    case WHITE_ROOK_2:
+    case WHITE_KNIGHT_1:
+    case WHITE_KNIGHT_2:
+    case WHITE_BISHOP_1:
+    case WHITE_BISHOP_2:
+    case WHITE_QUEEN:
+    case WHITE_KING:
+    case WHITE_PAWN_1:
+    case WHITE_PAWN_2:
+    case WHITE_PAWN_3:
+    case WHITE_PAWN_4:
+    case WHITE_PAWN_5:
+    case WHITE_PAWN_6:
+    case WHITE_PAWN_7:
+    case WHITE_PAWN_8:
+      return PieceColors.WHITE;
     default:
       // Do Nothing
   }
