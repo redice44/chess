@@ -40,6 +40,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       }
     }
 
+    // Valid Piece Movement
     switch(pieceType) {
       case PieceTypes.KNIGHT:
         const [x, y] = convertIndexToPosition(boardLayout[item.id]);
@@ -50,17 +51,27 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       default:
         return false;
     }
+
+    return true;
   }
 });
 
 BoardStore.dispatchToken = ChessDispatcher.register((action) => {
   switch(action.type) {
     case ActionTypes.BOARD_UPDATE:
-      console.log(action);
       boardLayout = action.layout;
       BoardStore.emitChange();
       break;
     case ActionTypes.PIECE_UPDATE:
+      const pieceColor = getPieceColor(action.id);
+
+      for (let prop in boardLayout) {
+        // If there is a piece collision and it's not the same color
+        if (boardLayout[prop] === action.pos && getPieceColor(prop) !== pieceColor) {
+          // Piece Capture
+          boardLayout[prop] = -1;
+        }
+      }
       boardLayout[action.id] = action.pos;
       BoardStore.emitChange();
       break;
