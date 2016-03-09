@@ -4,10 +4,10 @@ import ChessDispatcher from './../dispatcher/ChessDispatcher.js';
 import { ActionTypes } from './../constants/ChessConstants.js';
 
 export default {
-  setupBoard: function(layout) {
+  setupBoard: function(pieces) {
     ChessDispatcher.dispatch({
       type: ActionTypes.BOARD_UPDATE,
-      layout: layout
+      pieces: pieces
     });
   },
 

@@ -8,7 +8,7 @@ import { getPieceType, getPieceColor, convertIndexToPosition, convertPositionToI
 
 const CHANGE_EVENT = 'change';
 
-let boardLayout = {};
+let pieces = {};
 let turn = PieceColors.WHITE;
 
 let BoardStore = assign({}, EventEmitter.prototype, {
@@ -24,23 +24,22 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     this.removeListener(CHANGE_EVENT, callback);
   },
 
-  getLayout: function() {
-    return boardLayout;
+  getPieces: function() {
+    return pieces;
   },
 
   getTurn: function() {
     return turn;
   },
 
-  canMove: function(toX, toY, item) {
+  canMove: function(toPos, item) {
     const pieceType = getPieceType(item.id);
     const pieceColor = getPieceColor(item.id);
+    const [toX, toY] = convertIndexToPosition(toPos);
 
-    let toIndex = convertPositionToIndex(toX, toY);
-
-    for (let prop in boardLayout) {
+    for (let piece in pieces) {
       // If there is a piece collision and it's the same color
-      if (boardLayout[prop] === toIndex && getPieceColor(prop) === pieceColor) {
+      if (pieces[piece] === toPos && getPieceColor(piece) === pieceColor) {
         return false;
       }
     }
@@ -48,7 +47,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     // Valid Piece Movement
     switch(pieceType) {
       case PieceTypes.KNIGHT:
-        const [x, y] = convertIndexToPosition(boardLayout[item.id]);
+        const [x, y] = convertIndexToPosition(pieces[item.id]);
         let dx = Math.abs(toX - x);
         let dy = Math.abs(toY - y);
         return (dx === 2 && dy === 1) ||
@@ -64,20 +63,20 @@ let BoardStore = assign({}, EventEmitter.prototype, {
 BoardStore.dispatchToken = ChessDispatcher.register((action) => {
   switch(action.type) {
     case ActionTypes.BOARD_UPDATE:
-      boardLayout = action.layout;
+      pieces = action.pieces;
       BoardStore.emitChange();
       break;
     case ActionTypes.PIECE_UPDATE:
       const pieceColor = getPieceColor(action.id);
 
-      for (let prop in boardLayout) {
+      for (let piece in pieces) {
         // If there is a piece collision and it's not the same color
-        if (boardLayout[prop] === action.pos && getPieceColor(prop) !== pieceColor) {
+        if (pieces[piece] === action.pos && getPieceColor(piece) !== pieceColor) {
           // Piece Capture
-          boardLayout[prop] = -1;
+          pieces[piece] = -1;
         }
       }
-      boardLayout[action.id] = action.pos;
+      pieces[action.id] = action.pos;
       turn = turn === PieceColors.WHITE ? PieceColors.BLACK : PieceColors.WHITE;
       BoardStore.emitChange();
       break;

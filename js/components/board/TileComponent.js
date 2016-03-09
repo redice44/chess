@@ -7,15 +7,15 @@ import { PieceTypes } from './../../constants/ChessConstants.js';
 import { DropTarget } from 'react-dnd';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
 import BoardStore from './../../stores/BoardStore.js';
-import { convertPositionToIndex } from './../../util/BoardUtility.js';
+import { convertPositionToIndex, convertIndexToPosition } from './../../util/BoardUtility.js';
 
 const squareTarget = {
   canDrop(props, monitor) {
-    return BoardStore.canMove(props.x, props.y, monitor.getItem());
+    return BoardStore.canMove(props.pos, monitor.getItem());
   },
 
   drop(props, monitor) {
-    ChessActionCreator.move(convertPositionToIndex(props.x, props.y), monitor.getItem());
+    ChessActionCreator.move(props.pos, monitor.getItem());
   }
 };
 
@@ -33,7 +33,8 @@ class Tile extends Component {
   }
 
   render() {
-    const { x, y, connectDropTarget, isOver, canDrop } = this.props;
+    const { pos, connectDropTarget, isOver, canDrop } = this.props;
+    const [x, y] = convertIndexToPosition(pos);
     const black  = ( x + y ) % 2 == 1;
 
     return connectDropTarget (
@@ -65,8 +66,6 @@ class Tile extends Component {
 }
 
 Tile.propTypes = {
-  x: PropTypes.number.isRequired,
-  y: PropTypes.number.isRequired
 };
 
 export default DropTarget(PieceTypes.PIECE, squareTarget, collect)(Tile);

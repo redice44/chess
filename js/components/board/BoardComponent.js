@@ -16,18 +16,16 @@ class Board extends Component {
   }
 
   render() {
-    const pieces = this.props.layout;
-    const turn = this.props.turn;
+    const { pieces, turn } = this.props;
 
     let Squares = [];
-
     
     for (let i = 0; i < 64; i++) {
       Squares.push(this._renderSquare(i));
     }
 
-    for (let prop in pieces) {
-      Squares[pieces[prop]] = this._renderPiece(pieces[prop], prop, turn);
+    for (let piece in pieces) {
+      Squares[pieces[piece]] = this._renderPiece(pieces[piece], piece, turn);
     }
 
     return (
@@ -38,11 +36,9 @@ class Board extends Component {
   }
 
   _renderSquare(i) {
-    const [x, y] = convertIndexToPosition(i);
-
     return (
       <div key={i}>
-        <Tile x = {x} y = {y}>
+        <Tile pos={i}>
         </Tile>
       </div>
     );
@@ -65,7 +61,7 @@ class Board extends Component {
 
     return (
       <div key={i}>
-        <Tile x = {x} y = {y}>
+        <Tile pos={i}>
           {piece}
         </Tile>
       </div>
