@@ -1,7 +1,14 @@
 'use strict';
 
 import { Pieces, PieceTypes, PieceColors } from './../constants/ChessConstants.js';
-import { convertPositionToIndex } from './PositionUtility.js';
+
+export function convertIndexToPosition(i) {
+  return [ i % 8, Math.floor(i / 8) ];
+}
+
+export function convertPositionToIndex(x, y) {
+  return y * 8 + x;
+}
 
 export function setupBoard() {
   let board = {};

@@ -8,8 +8,7 @@ import Tile from './TileComponent.js';
 import Knight from './pieces/KnightComponent.js';
 import { Pieces, PieceTypes } from './../../constants/ChessConstants.js';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
-import { convertIndexToPosition } from './../../util/PositionUtility.js';
-import { getPieceType } from './../../util/BoardUtility.js';
+import { getPieceType, convertIndexToPosition } from './../../util/BoardUtility.js';
 
 function getStateFromStore() {
   return {

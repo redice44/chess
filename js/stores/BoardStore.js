@@ -4,8 +4,7 @@ import assign from 'object-assign';
 import { EventEmitter } from 'events';
 import ChessDispatcher from './../dispatcher/ChessDispatcher.js';
 import { ActionTypes, Pieces, PieceTypes } from './../constants/ChessConstants.js';
-import { convertIndexToPosition, convertPositionToIndex } from './../util/PositionUtility.js';
-import { getPieceType } from './../util/BoardUtility.js';
+import { getPieceType, convertIndexToPosition, convertPositionToIndex } from './../util/BoardUtility.js';
 
 const CHANGE_EVENT = 'change';
 

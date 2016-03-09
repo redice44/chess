@@ -7,7 +7,7 @@ import { PieceTypes } from './../../constants/ChessConstants.js';
 import { DropTarget } from 'react-dnd';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
 import BoardStore from './../../stores/BoardStore.js';
-import { convertPositionToIndex } from './../../util/PositionUtility.js';
+import { convertPositionToIndex } from './../../util/BoardUtility.js';
 
 const squareTarget = {
   canDrop(props, monitor) {
