@@ -43,7 +43,6 @@ class Board extends Component {
     }
 
     for (let prop in pieces) {
-      console.log(prop, pieces[prop]);
       Squares[pieces[prop]] = this._renderPiece(pieces[prop], prop);
     }
 
@@ -79,17 +78,12 @@ class Board extends Component {
     }
 
     return (
-      <div key={i}
-        onClick={() => this._handleSquareClick(x, y, id)}>
+      <div key={i}>
         <Tile x = {x} y = {y}>
           {piece}
         </Tile>
       </div>
     );
-  }
-
-  _handleSquareClick(x, y, id) {
-    ChessActionCreator.move(convertPositionToIndex(x, y), id);
   }
 
   _onChange() {

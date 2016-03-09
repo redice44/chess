@@ -4,7 +4,7 @@ import assign from 'object-assign';
 import { EventEmitter } from 'events';
 import ChessDispatcher from './../dispatcher/ChessDispatcher.js';
 import { ActionTypes, Pieces, PieceTypes } from './../constants/ChessConstants.js';
-import { getPieceType, convertIndexToPosition, convertPositionToIndex } from './../util/BoardUtility.js';
+import { getPieceType, getPieceColor, convertIndexToPosition, convertPositionToIndex } from './../util/BoardUtility.js';
 
 const CHANGE_EVENT = 'change';
 
@@ -29,11 +29,13 @@ let BoardStore = assign({}, EventEmitter.prototype, {
 
   canMove: function(toX, toY, item) {
     const pieceType = getPieceType(item.id);
+    const pieceColor = getPieceColor(item.id);
+
     let toIndex = convertPositionToIndex(toX, toY);
+
     for (let prop in boardLayout) {
-      // If there is a piece collision
-      // Will update for piece capture
-      if (boardLayout[prop] === toIndex) {
+      // If there is a piece collision and it's the same color
+      if (boardLayout[prop] === toIndex && getPieceColor(prop) === pieceColor) {
         return false;
       }
     }
