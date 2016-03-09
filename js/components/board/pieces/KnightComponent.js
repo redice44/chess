@@ -7,6 +7,10 @@ import { PieceTypes, PieceColors } from './../../../constants/ChessConstants.js'
 import { getPieceColor } from './../../../util/BoardUtility.js';
 
 const knightSource = {
+  canDrag(props) {
+    return props.myTurn;
+  },
+
   beginDrag(props) {
     return { id: props.id };
   }

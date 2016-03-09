@@ -6,9 +6,9 @@ import HTML5Backend from 'react-dnd-html5-backend';
 
 import Tile from './TileComponent.js';
 import Knight from './pieces/KnightComponent.js';
-import { Pieces, PieceTypes } from './../../constants/ChessConstants.js';
+import { Pieces, PieceTypes, PieceColors } from './../../constants/ChessConstants.js';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
-import { getPieceType, convertIndexToPosition, convertPositionToIndex } from './../../util/BoardUtility.js';
+import { getPieceType, getPieceColor, convertIndexToPosition, convertPositionToIndex } from './../../util/BoardUtility.js';
 
 function getStateFromStore() {
   return {
@@ -35,15 +35,18 @@ class Board extends Component {
   }
 
   render() {
+    const pieces = this.props.layout;
+    const turn = this.props.turn;
+
     let Squares = [];
-    let pieces = this.props.layout;
+
     
     for (let i = 0; i < 64; i++) {
       Squares.push(this._renderSquare(i));
     }
 
     for (let prop in pieces) {
-      Squares[pieces[prop]] = this._renderPiece(pieces[prop], prop);
+      Squares[pieces[prop]] = this._renderPiece(pieces[prop], prop, turn);
     }
 
     return (
@@ -64,14 +67,16 @@ class Board extends Component {
     );
   }
 
-  _renderPiece(i, id) {
+  _renderPiece(i, id, turn) {
     const [x, y] = convertIndexToPosition(i);
+    const pieceType = getPieceType(id);
+    const myTurn = getPieceColor(id) === turn;
+
     let piece = null;
-    const pieceType = getPieceType(id)
 
     switch(pieceType) {
       case PieceTypes.KNIGHT:
-        piece = <Knight id = {id} />;
+        piece = <Knight id = {id} myTurn={myTurn} />;
         break;
       default:
         // do nothing

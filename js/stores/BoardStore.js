@@ -3,12 +3,13 @@
 import assign from 'object-assign';
 import { EventEmitter } from 'events';
 import ChessDispatcher from './../dispatcher/ChessDispatcher.js';
-import { ActionTypes, Pieces, PieceTypes } from './../constants/ChessConstants.js';
+import { ActionTypes, Pieces, PieceTypes, PieceColors } from './../constants/ChessConstants.js';
 import { getPieceType, getPieceColor, convertIndexToPosition, convertPositionToIndex } from './../util/BoardUtility.js';
 
 const CHANGE_EVENT = 'change';
 
 let boardLayout = {};
+let turn = PieceColors.WHITE;
 
 let BoardStore = assign({}, EventEmitter.prototype, {
   emitChange: function() {
@@ -25,6 +26,10 @@ let BoardStore = assign({}, EventEmitter.prototype, {
 
   getLayout: function() {
     return boardLayout;
+  },
+
+  getTurn: function() {
+    return turn;
   },
 
   canMove: function(toX, toY, item) {
@@ -73,6 +78,7 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
         }
       }
       boardLayout[action.id] = action.pos;
+      turn = turn === PieceColors.WHITE ? PieceColors.BLACK : PieceColors.WHITE;
       BoardStore.emitChange();
       break;
     default:

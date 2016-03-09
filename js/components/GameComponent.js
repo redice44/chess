@@ -7,7 +7,8 @@ import BoardStore from './../stores/BoardStore.js';
 function getStateFromStore() {
   return {
     // store getters
-    layout: BoardStore.getLayout()
+    layout: BoardStore.getLayout(),
+    turn: BoardStore.getTurn()
   };
 }
 
@@ -29,9 +30,10 @@ export default class Game extends Component {
   }
 
   render() {
-    const layout = this.state.layout;
+    const { layout, turn } = this.state;
+
     return (
-      <Board layout={layout} />
+      <Board layout={layout} turn={turn}/>
     );
   }
 
