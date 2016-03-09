@@ -10,28 +10,9 @@ import { Pieces, PieceTypes, PieceColors } from './../../constants/ChessConstant
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
 import { getPieceType, getPieceColor, convertIndexToPosition, convertPositionToIndex } from './../../util/BoardUtility.js';
 
-function getStateFromStore() {
-  return {
-    // store getters
-  };
-}
-
 class Board extends Component {
   constructor(props) {
     super(props);
-    this.state = getStateFromStore();
-
-    // Binding this
-    this._renderSquare = this._renderSquare.bind(this);
-    this._onChange = this._onChange.bind(this);
-  }
-
-  componentDidMount() {
-    //ExampleStore.addChangeListener(this._onChange);
-  }
-
-  componentWillUnmount() {
-    //ExampleStore.removeChangeListener(this._onChange);
   }
 
   render() {
@@ -89,10 +70,6 @@ class Board extends Component {
         </Tile>
       </div>
     );
-  }
-
-  _onChange() {
-    this.setState(getStateFromStore());
   }
 }
 

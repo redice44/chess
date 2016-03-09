@@ -23,27 +23,9 @@ function collect(connect, monitor) {
   };
 }
 
-function getStateFromStore() {
-  return {
-    // store getters
-  };
-}
-
 class Knight extends Component {
   constructor(props) {
     super(props);
-    this.state = getStateFromStore();
-
-    // Binding this
-    this._onChange = this._onChange.bind(this);
-  }
-
-  componentDidMount() {
-    // ExampleStore.addChangeListener(this._onChange);
-  }
-
-  componentWillUnmount() {
-    // ExampleStore.removeChangeListener(this._onChange);
   }
 
   render() {
@@ -58,10 +40,6 @@ class Knight extends Component {
         { getPieceColor(id) === PieceColors.BLACK ? black : white }
       </div>
     );
-  }
-
-  _onChange() {
-    this.setState(getStateFromStore());
   }
 }
 

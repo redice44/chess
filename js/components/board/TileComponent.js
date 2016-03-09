@@ -27,27 +27,9 @@ function collect(connect, monitor) {
   };
 }
 
-function getStateFromStore() {
-  return {
-    // store getters
-  };
-}
-
 class Tile extends Component {
   constructor(props) {
     super(props);
-    this.state = getStateFromStore();
-
-    // Binding this
-    this._onChange = this._onChange.bind(this);
-  }
-
-  componentDidMount() {
-    // ExampleStore.addChangeListener(this._onChange);
-  }
-
-  componentWillUnmount() {
-    // ExampleStore.removeChangeListener(this._onChange);
   }
 
   render() {
@@ -79,10 +61,6 @@ class Tile extends Component {
         backgroundColor: color,
       }} />
     );
-  }
-
-  _onChange() {
-    this.setState(getStateFromStore());
   }
 }
 
