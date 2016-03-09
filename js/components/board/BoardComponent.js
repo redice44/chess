@@ -8,7 +8,7 @@ import Tile from './TileComponent.js';
 import Knight from './pieces/KnightComponent.js';
 import { Pieces, PieceTypes } from './../../constants/ChessConstants.js';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
-import { getPieceType, convertIndexToPosition } from './../../util/BoardUtility.js';
+import { getPieceType, convertIndexToPosition, convertPositionToIndex } from './../../util/BoardUtility.js';
 
 function getStateFromStore() {
   return {
@@ -58,8 +58,7 @@ class Board extends Component {
     const [x, y] = convertIndexToPosition(i);
 
     return (
-      <div key={i}
-        onClick={() => this._handleSquareClick(x, y)}>
+      <div key={i}>
         <Tile x = {x} y = {y}>
         </Tile>
       </div>
@@ -81,7 +80,7 @@ class Board extends Component {
 
     return (
       <div key={i}
-        onClick={() => this._handleSquareClick(x, y)}>
+        onClick={() => this._handleSquareClick(x, y, id)}>
         <Tile x = {x} y = {y}>
           {piece}
         </Tile>
@@ -89,8 +88,8 @@ class Board extends Component {
     );
   }
 
-  _handleSquareClick(x, y) {
-    ChessActionCreator.moveKnight([x, y]);
+  _handleSquareClick(x, y, id) {
+    ChessActionCreator.move(convertPositionToIndex(x, y), id);
   }
 
   _onChange() {

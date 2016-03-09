@@ -1,8 +1,10 @@
 'use strict';
 
 import React, { Component } from 'react';
+import classNames from 'classnames';
 import { DragSource } from 'react-dnd';
-import { PieceTypes } from './../../../constants/ChessConstants.js';
+import { PieceTypes, PieceColors } from './../../../constants/ChessConstants.js';
+import { getPieceColor } from './../../../util/BoardUtility.js';
 
 const knightSource = {
   beginDrag(props) {
@@ -41,13 +43,15 @@ class Knight extends Component {
   }
 
   render() {
-    const { black, connectDragSource, isDragging } = this.props;
+    const { id, connectDragSource, isDragging } = this.props;
+    const white = '♘';
+    const black = '♞';
     return connectDragSource(
-      <div style={{
-        opacity: isDragging ? 0.5 : 1,
-        color: black ? 'black' : 'white'
-      }}>
-      &#9816;
+      <div 
+        style={{
+          opacity: isDragging ? 0.5 : 1
+        }}>
+        { getPieceColor(id) === PieceColors.BLACK ? black : white }
       </div>
     );
   }
