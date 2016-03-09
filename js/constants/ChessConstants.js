@@ -44,7 +44,12 @@ export let Pieces = keyMirror({
 
 export const PieceTypes = keyMirror({
   PIECE: null,
-  KNIGHT: null
+  ROOK: null,
+  KNIGHT: null,
+  BISHOP: null,
+  QUEEN: null,
+  KING: null,
+  PAWN: null
 });
 
 export const PieceColors = keyMirror({

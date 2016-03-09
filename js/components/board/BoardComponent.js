@@ -6,6 +6,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 
 import Tile from './TileComponent.js';
 import Knight from './pieces/KnightComponent.js';
+import Rook from './pieces/RookComponent.js';
 import { Pieces, PieceTypes, PieceColors } from './../../constants/ChessConstants.js';
 import ChessActionCreator from './../../actions/ChessActionCreators.js';
 import { getPieceType, getPieceColor, convertIndexToPosition, convertPositionToIndex } from './../../util/BoardUtility.js';
@@ -54,6 +55,9 @@ class Board extends Component {
     switch(pieceType) {
       case PieceTypes.KNIGHT:
         piece = <Knight id = {id} myTurn={myTurn} />;
+        break;
+      case PieceTypes.ROOK:
+        piece = <Rook id = {id} myTurn={myTurn} />;
         break;
       default:
         // do nothing
