@@ -60,11 +60,11 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       case PieceTypes.BISHOP:
         return bishopMove(x, y, toX, toY);
       case PieceTypes.QUEEN:
-        return queenMove(toPos, item);
+        return queenMove(x, y, toX, toY);
       case PieceTypes.KING:
-        return kingMove(toPos, item);
+        return kingMove(x, y, toX, toY, pieceColor);
       case PieceTypes.PAWN:
-        return pawnMove(toPos, item);
+        return pawnMove(x, y, toX, toY, pieceColor);
       default:
         // Do Nothing
     }
@@ -134,14 +134,11 @@ function bishopMove(x, y, toX, toY) {
   
 }
 
-function queenMove(toPos, item) {
-  return bishopMove(toPos, item) || rookMove(toPos, item);
+function queenMove(x, y, toX, toY) {
+  return bishopMove(x, y, toX, toY) || rookMove(x, y, toX, toY);
 }
 
-function kingMove(toPos, item) {
-  const [x, y] = convertIndexToPosition(pieces[item.id]);
-  const pieceColor = getPieceColor(item.id);
-  const [toX, toY] = convertIndexToPosition(toPos);
+function kingMove(x, y, toX, toY, pieceColor) {
   const dx = Math.abs(toX - x);
   const dy = Math.abs(toY - y);
 
@@ -182,97 +179,54 @@ function kingMove(toPos, item) {
   }
 
   if (dx <= 1 && dy <= 1) {
-    for (let piece in pieces) {
-      if (pieces[piece] === toPos) {
-        return pieceColor !== getPieceColor(piece);
-      }
-    }
     return true;
   }
   return false;
 }
 
-function pawnMove(toPos, item) {
-  const [toX, toY] = convertIndexToPosition(toPos);
-  const [x, y] = convertIndexToPosition(pieces[item.id]);
-  const pieceColor = getPieceColor(item.id);
-
+function pawnMove(x, y, toX, toY, pieceColor) {
   if (pieceColor === PieceColors.WHITE) {
     // White
     // First Move
-    if (y === 6 ) {
-      if (toX === x && (toY === 5 || toY === 4)) {
-        return true;
-      }
+    if (y === 6 && (toX === x && (toY === 5 || toY === 4))) {
+      return true;
     }
 
     if (toY === y - 1) {
       // Moving forward
       if (toX === x) {
-        for (let piece in pieces) {
-          if (pieces[piece] === toPos) {
-            // There is a piece in front of the pawn
-            return false;
-          }
-        }
-        // There is no piece in front of the pawn
-        return true;
+        return !_pieceAt(convertPositionToIndex(toX, toY));
       } else if (Math.abs(toX - x) === 1) {
         // One to the left or right
-        for (let piece in pieces) {
-          if (pieces[piece] === toPos && pieceColor !== getPieceColor(piece)) {
-            // Can Diagonally capture
-            return true;
-          }
-        }
-        // En Passant
-        if (y === 3 && toX === whiteEnPassant) {
+        if (_pieceAt(convertPositionToIndex(toX, toY))) {
           return true;
         }
-
-        return false;
+        // En Passant
+        return y === 3 && toX === whiteEnPassant;
       }
-    }
-    return false;
-    
+    }    
   } else {
     // Black
-    if (y === 1) {
-      if (toX === x && (toY === 2 || toY === 3)) {
-        return true;
-      }
+    if (y === 1 && (toX === x && (toY === 2 || toY === 3))) {
+      return true;
     }
 
     if (toY === y + 1) {
       // Moving forward
       if (toX === x) {
-        for (let piece in pieces) {
-          if (pieces[piece] === toPos) {
-            // There is a piece in front of the pawn
-            return false;
-          }
-        }
-        // There is no piece in front of the pawn
-        return true;
+        return !_pieceAt(convertPositionToIndex(toX, toY));
       } else if (Math.abs(toX - x) === 1) {
         // One to the left or right
-        for (let piece in pieces) {
-          if (pieces[piece] === toPos && pieceColor !== getPieceColor(piece)) {
-            // Can Diagonally capture
-            return true;
-          }
-        }
-
-        // En Passant
-        if (y === 4 && toX === blackEnPassant) {
+        if (_pieceAt(convertPositionToIndex(toX, toY))) {
           return true;
         }
 
-        return false;
+        // En Passant
+        return y === 4 && toX === blackEnPassant;
       }
     }
-    return false;
   }
+  
   return false;
 }
 
