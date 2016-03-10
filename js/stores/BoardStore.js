@@ -71,32 +71,17 @@ let BoardStore = assign({}, EventEmitter.prototype, {
   }
 });
 
-function _checkAxis(axis, start, target, delta, direction) {
+function _checkLine(x, y, delta, xDir, yDir, target) {
   // Traverse the path to the move target
-  for (let i = 0; i < delta; i++) {
-    let temp = start + i * direction;
-    let tempIndex = axis(temp);
+  for (let i = 1; i < delta; i++) {
+    let tempIndex = convertPositionToIndex(x + i * xDir, y + i * yDir);
     let piece = _pieceAt(tempIndex);
 
     // If there is a piece
     if (piece) {
       // And it is in the way i.e. Not the move target
       // If it's at the target, it must be an enemy
-      return temp === target;
-    }
-  }
-
-  // Traverses with no issues
-  return true;
-}
-
-function _checkDiagonal(x, y, delta, xDir, yDir, target) {
-  for (let i = 1; i < delta; i++) {
-    let tempIndex = convertPositionToIndex(x + i * xDir, y + i * yDir);
-    let piece = _pieceAt(tempIndex);
-
-    if (piece) {
-      return tempIndex == target;
+      return tempIndex === target;
     }
   }
 
@@ -105,19 +90,25 @@ function _checkDiagonal(x, y, delta, xDir, yDir, target) {
 }
 
 function rookMove(x, y, toX, toY) {
+  let xDir, yDir, delta;
+
   if (x === toX) {
     // y-axis
-    const direction = y < toY ? 1 : -1;
 
-    return _checkAxis((y) => convertPositionToIndex(x, y), y + 1 * direction, toY, Math.abs(toY - y), direction);
+    xDir = 0;
+    yDir = y < toY ? 1 : -1;
+    delta = Math.abs(toY - y);
   } else if (y === toY) {
     // x-axis
-    const direction = x < toX ? 1 : -1;
 
-    return _checkAxis((x) => convertPositionToIndex(x, y), x + 1 * direction, toX, Math.abs(toX - x), direction);
+    xDir = x < toX ? 1 : -1;
+    yDir = 0;
+    delta = Math.abs(toX - x);
+  } else {
+    return false;
   }
 
-  return false;
+  return _checkLine(x, y, delta, xDir, yDir, convertPositionToIndex(toX, toY));
 }
 
 function knightMove(x, y, toX, toY) {
@@ -130,15 +121,17 @@ function bishopMove(x, y, toX, toY) {
   const dx = toX - x;
   const dy = toY - y;
 
-  if (dx === dy && dx > 0) {
-    return _checkDiagonal(x, y, dx, 1, 1, convertPositionToIndex(toX, toY));
-  } else if (dx === dy && dx < 0) {
-    return _checkDiagonal(x, y, Math.abs(dx), -1, -1, convertPositionToIndex(toX, toY));
-  } else if (dx === -dy && dx > 0) {
-    return _checkDiagonal(x, y, dx, 1, -1, convertPositionToIndex(toX, toY));
-  } else if (dx === -dy && dx < 0) {
-    return _checkDiagonal(x, y, Math.abs(dx), -1, 1, convertPositionToIndex(toX, toY));
+  let xDir, yDir, delta;
+
+  if (Math.abs(dx) === Math.abs(dy)) {
+    dx > 0 ? xDir = 1 : xDir = -1;
+    dy > 0 ? yDir = 1 : yDir = -1;
+    delta = Math.abs(dx);
+  } else {
+    return false;
   }
+  return _checkLine(x, y, delta, xDir, yDir, convertPositionToIndex(toX, toY));
+  
 }
 
 function queenMove(toPos, item) {
