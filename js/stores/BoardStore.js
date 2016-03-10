@@ -77,14 +77,23 @@ function kingMove(toPos, item) {
   const dy = Math.abs(toY - y);
 
   // Castling
-  if (whiteCanCastle && pieceColor === PieceColors.WHITE && toX === 6 && toY === 7) {
-    if (!_pieceAt(convertPositionToIndex(5, 7)) && !_pieceAt(convertPositionToIndex(6, 7))) {
+
+  // White
+  if (whiteCanCastle && pieceColor === PieceColors.WHITE) {
+    // King's Castle
+    if (toX === 6 && toY === 7 && !_pieceAt(convertPositionToIndex(5, 7)) && !_pieceAt(convertPositionToIndex(6, 7))) {
       return true;
+    }
+    // Queen's Castle
+    if (toX === 2 && toY === 7 && 
+      !_pieceAt(convertPositionToIndex(1, 7)) && 
+      !_pieceAt(convertPositionToIndex(2, 7)) &&
+      !_pieceAt(convertPositionToIndex(3, 7))) {
+        return true;
     }
   }
 
   if (dx <= 1 && dy <= 1) {
-    console.log(toX, toY, x, y);
     for (let piece in pieces) {
       if (pieces[piece] === toPos) {
         return pieceColor !== getPieceColor(piece);
@@ -336,10 +345,16 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
 
       // Castling
       if (getPieceType(action.id) === PieceTypes.KING) {
-        if (pieceColor === PieceColors.WHITE && action.pos === convertPositionToIndex(6, 7)) {
-          pieces[Pieces.WHITE_ROOK_2] = convertPositionToIndex(5, 7);
-          whiteCanCastle = false;
+        if (pieceColor === PieceColors.WHITE) {
+          if (action.pos === convertPositionToIndex(6, 7)) {
+            // King's Castle
+            pieces[Pieces.WHITE_ROOK_2] = convertPositionToIndex(5, 7);
+          } else if (action.pos === convertPositionToIndex(2, 7)) {
+            // Queen's Castle
+            pieces[Pieces.WHITE_ROOK_1] = convertPositionToIndex(3, 7);
+          }
         }
+        whiteCanCastle = false;
       }
       pieces[action.id] = action.pos;
       turn = turn === PieceColors.WHITE ? PieceColors.BLACK : PieceColors.WHITE;
