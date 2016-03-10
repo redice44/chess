@@ -10,6 +10,8 @@ const CHANGE_EVENT = 'change';
 
 let pieces = {};
 let turn = PieceColors.WHITE;
+let whiteCanCastle = true;
+let blackCanCastle = true;
 
 let BoardStore = assign({}, EventEmitter.prototype, {
   emitChange: function() {
@@ -74,7 +76,13 @@ function kingMove(toPos, item) {
   const dx = Math.abs(toX - x);
   const dy = Math.abs(toY - y);
 
-  console.log(dx, dy, toX, toY);
+  // Castling
+  if (whiteCanCastle && pieceColor === PieceColors.WHITE && toX === 6 && toY === 7) {
+    if (!_pieceAt(convertPositionToIndex(5, 7)) && !_pieceAt(convertPositionToIndex(6, 7))) {
+      return true;
+    }
+  }
+
   if (dx <= 1 && dy <= 1) {
     console.log(toX, toY, x, y);
     for (let piece in pieces) {
@@ -301,6 +309,14 @@ function rookMove(toPos, item) {
   return false;
 }
 
+function _pieceAt(pos) {
+  for (let piece in pieces) {
+    if (pieces[piece] === pos) {
+      return true;
+    }
+  }
+  return false;
+}
 BoardStore.dispatchToken = ChessDispatcher.register((action) => {
   switch(action.type) {
     case ActionTypes.BOARD_UPDATE:
@@ -315,6 +331,14 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
         if (pieces[piece] === action.pos && getPieceColor(piece) !== pieceColor) {
           // Piece Capture
           pieces[piece] = -1;
+        }
+      }
+
+      // Castling
+      if (getPieceType(action.id) === PieceTypes.KING) {
+        if (pieceColor === PieceColors.WHITE && action.pos === convertPositionToIndex(6, 7)) {
+          pieces[Pieces.WHITE_ROOK_2] = convertPositionToIndex(5, 7);
+          whiteCanCastle = false;
         }
       }
       pieces[action.id] = action.pos;
