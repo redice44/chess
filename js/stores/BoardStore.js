@@ -58,7 +58,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       case PieceTypes.KNIGHT:
         return knightMove(x, y, toX, toY);
       case PieceTypes.BISHOP:
-        return bishopMove(toPos, item);
+        return bishopMove(x, y, toX, toY);
       case PieceTypes.QUEEN:
         return queenMove(toPos, item);
       case PieceTypes.KING:
@@ -81,12 +81,7 @@ function _checkAxis(axis, start, target, delta, direction, pieceColor) {
     // If there is a piece
     if (piece) {
       // And it is in the way i.e. Not the move target
-      if (temp !== target) {
-        return false;
-      } else {
-        // If it is an enemy return true
-        return getPieceColor(piece) !== pieceColor;
-      }
+      return temp === target;
     }
   }
 
@@ -99,12 +94,12 @@ function rookMove(x, y, toX, toY, pieceColor) {
     // y-axis
     const direction = y < toY ? 1 : -1;
 
-    return _checkAxis((y) => convertPositionToIndex(x, y), y + 1, toY, Math.abs(toY - y), direction, pieceColor);
+    return _checkAxis((y) => convertPositionToIndex(x, y), y + 1 * direction, toY, Math.abs(toY - y), direction, pieceColor);
   } else if (y === toY) {
     // x-axis
     const direction = x < toX ? 1 : -1;
 
-    return _checkAxis((x) => convertPositionToIndex(x, y), x + 1, toX, Math.abs(toX - x), direction, pieceColor);
+    return _checkAxis((x) => convertPositionToIndex(x, y), x + 1 * direction, toX, Math.abs(toX - x), direction, pieceColor);
   }
 
   return false;
@@ -116,7 +111,7 @@ function knightMove(x, y, toX, toY) {
   return (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
 }
 
-function bishopMove(toPos, item) {
+function bishopMove(x, y, toX, toY) {
   const dx = toX - x;
   const dy = toY - y;
 
