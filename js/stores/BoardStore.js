@@ -56,7 +56,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       case PieceTypes.QUEEN:
         return queenMove(toPos, item);
       case PieceTypes.KING:
-        break;
+        return kingMove(toPos, item);
       case PieceTypes.PAWN:
         return pawnMove(toPos, item);
       default:
@@ -66,6 +66,26 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     return true;
   }
 });
+
+function kingMove(toPos, item) {
+  const [x, y] = convertIndexToPosition(pieces[item.id]);
+  const pieceColor = getPieceColor(item.id);
+  const [toX, toY] = convertIndexToPosition(toPos);
+  const dx = Math.abs(toX - x);
+  const dy = Math.abs(toY - y);
+
+  console.log(dx, dy, toX, toY);
+  if (dx <= 1 && dy <= 1) {
+    console.log(toX, toY, x, y);
+    for (let piece in pieces) {
+      if (pieces[piece] === toPos) {
+        return pieceColor !== getPieceColor(piece);
+      }
+    }
+    return true;
+  }
+  return false;
+}
 
 function queenMove(toPos, item) {
   return bishopMove(toPos, item) || rookMove(toPos, item);
