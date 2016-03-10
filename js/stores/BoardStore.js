@@ -9,6 +9,7 @@ import { getPieceType, getPieceColor, convertIndexToPosition, convertPositionToI
 const CHANGE_EVENT = 'change';
 
 let pieces = {};
+let promotions = {};
 let turn = PieceColors.WHITE;
 let whiteCanCastleKings = true;
 let whiteCanCastleQueens = true;
@@ -38,25 +39,24 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     return turn;
   },
 
+  // Filter out all of the moves that are invalid.
   canMove: function(toPos, item) {
-    const pieceType = getPieceType(item.id);
-    const pieceColor = getPieceColor(item.id);
-    const [toX, toY] = convertIndexToPosition(toPos);
     const [x, y] = convertIndexToPosition(pieces[item.id]);
+    const [toX, toY] = convertIndexToPosition(toPos);
+    const pieceColor = getPieceColor(item.id);
+    const pieceType = getPieceType(item.id);
 
     // Can't move to any space occupied by your own pieces.
-    for (let piece in pieces) {
-      if (pieces[piece] === toPos && getPieceColor(piece) === pieceColor) {
-        return false; 
-      }
+    if (getPieceColor(_pieceAt(toPos)) === pieceColor) {
+      return false;
     }
 
     // Valid Piece Movement
     switch(pieceType) {
+      case PieceTypes.ROOK:
+        return rookMove(x, y, toX, toY, pieceColor);
       case PieceTypes.KNIGHT:
         return knightMove(toPos, item);
-      case PieceTypes.ROOK:
-        return rookMove(toPos, item);
       case PieceTypes.BISHOP:
         return bishopMove(toPos, item);
       case PieceTypes.QUEEN:
@@ -66,69 +66,70 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       case PieceTypes.PAWN:
         return pawnMove(toPos, item);
       default:
-        return false;
+        // Do Nothing
     }
-
-    return true;
   }
 });
 
-function kingMove(toPos, item) {
-  const [x, y] = convertIndexToPosition(pieces[item.id]);
-  const pieceColor = getPieceColor(item.id);
-  const [toX, toY] = convertIndexToPosition(toPos);
-  const dx = Math.abs(toX - x);
-  const dy = Math.abs(toY - y);
+function _checkAxis(axis, start, target, delta, direction, pieceColor) {
+    for (let i = 0; i < delta; i++) {
+    // Traverse the path to the move target
+    let temp = start + i * direction;
+    let tempIndex = axis(temp);
+    let piece = _pieceAt(tempIndex);
 
-  // Castling
-
-  if (pieceColor === PieceColors.WHITE) {
-    // White
-    if (toX === 6 && toY === 7 && whiteCanCastleKings && 
-      pieces[Pieces.WHITE_ROOK_2] === convertPositionToIndex(7, 7) &&
-      !_pieceAt(convertPositionToIndex(5, 7)) && 
-      !_pieceAt(convertPositionToIndex(6, 7))) {
-        // King's Castle
-        return true;
-    } else if (toX === 2 && toY === 7 && whiteCanCastleQueens &&
-      pieces[Pieces.WHITE_ROOK_1] === convertPositionToIndex(0, 7) &&
-      !_pieceAt(convertPositionToIndex(1, 7)) && 
-      !_pieceAt(convertPositionToIndex(2, 7)) &&
-      !_pieceAt(convertPositionToIndex(3, 7))) {
-        // Queen's Castle
-        return true;
-    }
-  } else if (pieceColor === PieceColors.BLACK) {
-    // Black
-    if (toX === 6 && toY === 0 && blackCanCastleKings &&
-      pieces[Pieces.BLACK_ROOK_2] === convertPositionToIndex(7, 0) &&
-      !_pieceAt(convertPositionToIndex(5, 0)) &&
-      !_pieceAt(convertPositionToIndex(6, 0))) {
-        // King's Castle
-        return true;
-    } else if (toX === 2 && toY === 0 && blackCanCastleQueens &&
-      pieces[Pieces.BLACK_ROOK_1] === convertPositionToIndex(0, 0) &&
-      !_pieceAt(convertPositionToIndex(1, 0)) &&
-      !_pieceAt(convertPositionToIndex(2, 0)) &&
-      !_pieceAt(convertPositionToIndex(3, 0))) {
-        // Queen's Castle
-        return true;
-    }
-  }
-
-  if (dx <= 1 && dy <= 1) {
-    for (let piece in pieces) {
-      if (pieces[piece] === toPos) {
-        return pieceColor !== getPieceColor(piece);
+    // If there is a piece
+    if (piece) {
+      // And it is in the way i.e. Not the move target
+      if (temp !== target) {
+        return false;
+      } else {
+        // If it is an enemy return true
+        return getPieceColor(piece) !== pieceColor;
       }
     }
-    return true;
   }
+
+  // Traverses with no issues
+  return true;
+}
+
+function rookMove(x, y, toX, toY, pieceColor) {
+  if (x === toX) {
+    // y-axis
+
+    if (y < toY) {
+      // Down
+
+      return _checkAxis((y) => convertPositionToIndex(x, y), y + 1, toY, Math.abs(toY - y), 1, pieceColor);
+    } else {
+      // Up
+
+      return _checkAxis((y) => convertPositionToIndex(x, y), y - 1, toY, Math.abs(toY - y), -1, pieceColor);
+    }
+  } else if (y === toY) {
+    // x-axis
+
+    if (x < toX) {
+      // Right
+
+      return _checkAxis((x) => convertPositionToIndex(x, y), x + 1, toX, Math.abs(toX - x), 1, pieceColor);
+    } else {
+      // Left
+      
+      return _checkAxis((x) => convertPositionToIndex(x, y), x - 1, toX, Math.abs(toX - x), -1, pieceColor);
+    }
+  }
+
   return false;
 }
 
-function queenMove(toPos, item) {
-  return bishopMove(toPos, item) || rookMove(toPos, item);
+function knightMove(toPos, item) {
+  const [toX, toY] = convertIndexToPosition(toPos);
+  const [x, y] = convertIndexToPosition(pieces[item.id]);
+  const dx = Math.abs(toX - x);
+  const dy = Math.abs(toY - y);
+  return (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
 }
 
 function bishopMove(toPos, item) {
@@ -188,6 +189,64 @@ function bishopMove(toPos, item) {
           // Piece in the way
           return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
         }
+      }
+    }
+    return true;
+  }
+  return false;
+}
+
+function queenMove(toPos, item) {
+  return bishopMove(toPos, item) || rookMove(toPos, item);
+}
+
+function kingMove(toPos, item) {
+  const [x, y] = convertIndexToPosition(pieces[item.id]);
+  const pieceColor = getPieceColor(item.id);
+  const [toX, toY] = convertIndexToPosition(toPos);
+  const dx = Math.abs(toX - x);
+  const dy = Math.abs(toY - y);
+
+  // Castling
+
+  if (pieceColor === PieceColors.WHITE) {
+    // White
+    if (toX === 6 && toY === 7 && whiteCanCastleKings && 
+      pieces[Pieces.WHITE_ROOK_2] === convertPositionToIndex(7, 7) &&
+      !_pieceAt(convertPositionToIndex(5, 7)) && 
+      !_pieceAt(convertPositionToIndex(6, 7))) {
+        // King's Castle
+        return true;
+    } else if (toX === 2 && toY === 7 && whiteCanCastleQueens &&
+      pieces[Pieces.WHITE_ROOK_1] === convertPositionToIndex(0, 7) &&
+      !_pieceAt(convertPositionToIndex(1, 7)) && 
+      !_pieceAt(convertPositionToIndex(2, 7)) &&
+      !_pieceAt(convertPositionToIndex(3, 7))) {
+        // Queen's Castle
+        return true;
+    }
+  } else if (pieceColor === PieceColors.BLACK) {
+    // Black
+    if (toX === 6 && toY === 0 && blackCanCastleKings &&
+      pieces[Pieces.BLACK_ROOK_2] === convertPositionToIndex(7, 0) &&
+      !_pieceAt(convertPositionToIndex(5, 0)) &&
+      !_pieceAt(convertPositionToIndex(6, 0))) {
+        // King's Castle
+        return true;
+    } else if (toX === 2 && toY === 0 && blackCanCastleQueens &&
+      pieces[Pieces.BLACK_ROOK_1] === convertPositionToIndex(0, 0) &&
+      !_pieceAt(convertPositionToIndex(1, 0)) &&
+      !_pieceAt(convertPositionToIndex(2, 0)) &&
+      !_pieceAt(convertPositionToIndex(3, 0))) {
+        // Queen's Castle
+        return true;
+    }
+  }
+
+  if (dx <= 1 && dy <= 1) {
+    for (let piece in pieces) {
+      if (pieces[piece] === toPos) {
+        return pieceColor !== getPieceColor(piece);
       }
     }
     return true;
@@ -279,92 +338,15 @@ function pawnMove(toPos, item) {
   return false;
 }
 
-function knightMove(toPos, item) {
-  const [toX, toY] = convertIndexToPosition(toPos);
-  const [x, y] = convertIndexToPosition(pieces[item.id]);
-  const dx = Math.abs(toX - x);
-  const dy = Math.abs(toY - y);
-  return (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
-}
-
-function rookMove(toPos, item) {
-  const [x, y] = convertIndexToPosition(pieces[item.id]);
-  const pieceColor = getPieceColor(item.id);
-  const [toX, toY] = convertIndexToPosition(toPos);
-
-  if (x === toX) {
-    // y-axis
-    if (y < toY) {
-      // Go Down
-      let tempY = y;
-      while (tempY < toY) {
-        tempY++;
-        for (let piece in pieces) {
-          let tempIndex = convertPositionToIndex(x, tempY);
-          if (pieces[piece] === tempIndex) {
-            // There is a piece in the way
-            return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
-          }
-        }
-      }
-    } else {
-      // Go Up
-      let tempY = y;
-      while (tempY > toY ) {
-        tempY--;
-        let tempIndex = convertPositionToIndex(x, tempY);
-        for (let piece in pieces) {
-          if (pieces[piece] === tempIndex) {
-            // There is a piece in the way
-            return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
-          }
-        }
-      }
-    }
-    return true;
-  } else if (y === toY) {
-    // x-axis
-    if (x < toX) {
-      // Go Down
-      let tempX = x;
-      while (tempX < toX) {
-        tempX++;
-        for (let piece in pieces) {
-          let tempIndex = convertPositionToIndex(tempX, y);
-          if (pieces[piece] === tempIndex) {
-            // There is a piece in the way
-            return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
-          }
-        }
-      }
-    } else {
-      // Go Up
-      let tempX = x;
-      while (tempX > toX ) {
-        tempX--;
-        let tempIndex = convertPositionToIndex(tempX, y);
-        for (let piece in pieces) {
-          if (pieces[piece] === tempIndex) {
-            // There is a piece in the way
-            return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
-          }
-        }
-      }
-    }
-    return true;
-  }
-
-  return false;
-}
 
 function _pieceAt(pos) {
   for (let piece in pieces) {
     if (pieces[piece] === pos) {
-      return true;
+      return piece;
     }
   }
-  return false;
 }
+
 BoardStore.dispatchToken = ChessDispatcher.register((action) => {
   switch(action.type) {
     case ActionTypes.BOARD_UPDATE:
@@ -432,6 +414,9 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
         const [toX, toY] = convertIndexToPosition(action.pos);
 
         if (pieceColor === PieceColors.WHITE) {
+          // Promotion
+
+
           // Capturing En Passant
           if (y === 3 && toX === whiteEnPassant) {
             const tempIndex = convertPositionToIndex(toX, y);
