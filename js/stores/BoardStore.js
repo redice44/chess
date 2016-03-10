@@ -54,7 +54,9 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       case PieceTypes.BISHOP:
       case PieceTypes.QUEEN:
       case PieceTypes.KING:
+        break;
       case PieceTypes.PAWN:
+        return pawnMove(toPos, item);
       default:
         return false;
     }
@@ -62,6 +64,30 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     return true;
   }
 });
+
+function pawnMove(toPos, item) {
+  const [toX, toY] = convertIndexToPosition(toPos);
+  const [x, y] = convertIndexToPosition(pieces[item.id]);
+  const pieceColor = getPieceColor(item.id);
+
+  if (pieceColor === PieceColors.WHITE) {
+    // White
+    // First Move
+    if (y === 6 ) {
+      return toX === x && (toY === 5 || toY === 4);
+    } else {
+      return toX === x && toY === y - 1;
+    }
+  } else {
+    // Black
+    if (y === 1) {
+      return toX === x && (toY === 2 || toY === 3);      
+    } else {
+      return toX === x && toY === y + 1;
+    }
+  }
+  return false;
+}
 
 function knightMove(toPos, item) {
   const [toX, toY] = convertIndexToPosition(toPos);
@@ -87,7 +113,6 @@ function rookMove(toPos, item) {
           let tempIndex = convertPositionToIndex(x, tempY);
           if (pieces[piece] === tempIndex) {
             // There is a piece in the way
-            console.log('In the way: ', piece);
             return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
           }
         }
@@ -101,7 +126,6 @@ function rookMove(toPos, item) {
         for (let piece in pieces) {
           if (pieces[piece] === tempIndex) {
             // There is a piece in the way
-            console.log('In the way: ', piece, pieces[piece]);
             return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
           }
         }
@@ -119,7 +143,6 @@ function rookMove(toPos, item) {
           let tempIndex = convertPositionToIndex(tempX, y);
           if (pieces[piece] === tempIndex) {
             // There is a piece in the way
-            console.log('In the way: ', piece);
             return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
           }
         }
@@ -133,7 +156,6 @@ function rookMove(toPos, item) {
         for (let piece in pieces) {
           if (pieces[piece] === tempIndex) {
             // There is a piece in the way
-            console.log('In the way: ', piece, pieces[piece]);
             return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
           }
         }
