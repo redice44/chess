@@ -54,7 +54,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     // Valid Piece Movement
     switch(pieceType) {
       case PieceTypes.ROOK:
-        return rookMove(x, y, toX, toY, pieceColor);
+        return rookMove(x, y, toX, toY);
       case PieceTypes.KNIGHT:
         return knightMove(x, y, toX, toY);
       case PieceTypes.BISHOP:
@@ -71,7 +71,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
   }
 });
 
-function _checkAxis(axis, start, target, delta, direction, pieceColor) {
+function _checkAxis(axis, start, target, delta, direction) {
   // Traverse the path to the move target
   for (let i = 0; i < delta; i++) {
     let temp = start + i * direction;
@@ -81,6 +81,7 @@ function _checkAxis(axis, start, target, delta, direction, pieceColor) {
     // If there is a piece
     if (piece) {
       // And it is in the way i.e. Not the move target
+      // If it's at the target, it must be an enemy
       return temp === target;
     }
   }
@@ -89,17 +90,31 @@ function _checkAxis(axis, start, target, delta, direction, pieceColor) {
   return true;
 }
 
-function rookMove(x, y, toX, toY, pieceColor) {
+function _checkDiagonal(x, y, delta, xDir, yDir, target) {
+  for (let i = 1; i < delta; i++) {
+    let tempIndex = convertPositionToIndex(x + i * xDir, y + i * yDir);
+    let piece = _pieceAt(tempIndex);
+
+    if (piece) {
+      return tempIndex == target;
+    }
+  }
+
+  // Traverses with no issues
+  return true;
+}
+
+function rookMove(x, y, toX, toY) {
   if (x === toX) {
     // y-axis
     const direction = y < toY ? 1 : -1;
 
-    return _checkAxis((y) => convertPositionToIndex(x, y), y + 1 * direction, toY, Math.abs(toY - y), direction, pieceColor);
+    return _checkAxis((y) => convertPositionToIndex(x, y), y + 1 * direction, toY, Math.abs(toY - y), direction);
   } else if (y === toY) {
     // x-axis
     const direction = x < toX ? 1 : -1;
 
-    return _checkAxis((x) => convertPositionToIndex(x, y), x + 1 * direction, toX, Math.abs(toX - x), direction, pieceColor);
+    return _checkAxis((x) => convertPositionToIndex(x, y), x + 1 * direction, toX, Math.abs(toX - x), direction);
   }
 
   return false;
@@ -116,60 +131,14 @@ function bishopMove(x, y, toX, toY) {
   const dy = toY - y;
 
   if (dx === dy && dx > 0) {
-    const delta = dx;
-    // Down Right
-    for (let i = 1; i < delta; i++) {
-      let tempIndex = convertPositionToIndex(x + i, y + i);
-      for (let piece in pieces) {
-        if (pieces[piece] === tempIndex) {
-          // Piece in the way
-          return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
-        }
-      }
-    }
-    return true;
+    return _checkDiagonal(x, y, dx, 1, 1, convertPositionToIndex(toX, toY));
   } else if (dx === dy && dx < 0) {
-    const delta = Math.abs(dx);
-    // Up Left
-    for (let i = 1; i < delta; i++) {
-      let tempIndex = convertPositionToIndex(x - i, y - i);
-      for (let piece in pieces) {
-        if (pieces[piece] === tempIndex) {
-          // Piece in the way
-          return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
-        }
-      }
-    }
-    return true;
+    return _checkDiagonal(x, y, Math.abs(dx), -1, -1, convertPositionToIndex(toX, toY));
   } else if (dx === -dy && dx > 0) {
-    const delta = dx;
-    // Up Right
-    for (let i = 1; i < delta; i++) {
-      let tempIndex = convertPositionToIndex(x + i, y - i);
-      for (let piece in pieces) {
-        if (pieces[piece] === tempIndex) {
-          // Piece in the way
-          return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
-        }
-      }
-    }
-    return true;
+    return _checkDiagonal(x, y, dx, 1, -1, convertPositionToIndex(toX, toY));
   } else if (dx === -dy && dx < 0) {
-    const delta = Math.abs(dx);
-
-    // Down Left
-    for (let i = 1; i < delta; i++) {
-      let tempIndex = convertPositionToIndex(x - i, y + i);
-      for (let piece in pieces) {
-        if (pieces[piece] === tempIndex) {
-          // Piece in the way
-          return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
-        }
-      }
-    }
-    return true;
+    return _checkDiagonal(x, y, Math.abs(dx), -1, 1, convertPositionToIndex(toX, toY));
   }
-  return false;
 }
 
 function queenMove(toPos, item) {
