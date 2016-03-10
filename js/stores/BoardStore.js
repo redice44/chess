@@ -52,7 +52,9 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       case PieceTypes.ROOK:
         return rookMove(toPos, item);
       case PieceTypes.BISHOP:
+        return bishopMove(toPos, item);
       case PieceTypes.QUEEN:
+        return queenMove(toPos, item);
       case PieceTypes.KING:
         break;
       case PieceTypes.PAWN:
@@ -64,6 +66,74 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     return true;
   }
 });
+
+function queenMove(toPos, item) {
+  return bishopMove(toPos, item) || rookMove(toPos, item);
+}
+
+function bishopMove(toPos, item) {
+  const [x, y] = convertIndexToPosition(pieces[item.id]);
+  const pieceColor = getPieceColor(item.id);
+  const [toX, toY] = convertIndexToPosition(toPos);
+  const dx = toX - x;
+  const dy = toY - y;
+
+  if (dx === dy && dx > 0) {
+    const delta = dx;
+    // Down Right
+    for (let i = 1; i < delta; i++) {
+      let tempIndex = convertPositionToIndex(x + i, y + i);
+      for (let piece in pieces) {
+        if (pieces[piece] === tempIndex) {
+          // Piece in the way
+          return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
+        }
+      }
+    }
+    return true;
+  } else if (dx === dy && dx < 0) {
+    const delta = Math.abs(dx);
+    // Up Left
+    for (let i = 1; i < delta; i++) {
+      let tempIndex = convertPositionToIndex(x - i, y - i);
+      for (let piece in pieces) {
+        if (pieces[piece] === tempIndex) {
+          // Piece in the way
+          return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
+        }
+      }
+    }
+    return true;
+  } else if (dx === -dy && dx > 0) {
+    const delta = dx;
+    // Up Right
+    for (let i = 1; i < delta; i++) {
+      let tempIndex = convertPositionToIndex(x + i, y - i);
+      for (let piece in pieces) {
+        if (pieces[piece] === tempIndex) {
+          // Piece in the way
+          return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
+        }
+      }
+    }
+    return true;
+  } else if (dx === -dy && dx < 0) {
+    const delta = Math.abs(dx);
+
+    // Down Left
+    for (let i = 1; i < delta; i++) {
+      let tempIndex = convertPositionToIndex(x - i, y + i);
+      for (let piece in pieces) {
+        if (pieces[piece] === tempIndex) {
+          // Piece in the way
+          return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
+        }
+      }
+    }
+    return true;
+  }
+  return false;
+}
 
 function pawnMove(toPos, item) {
   const [toX, toY] = convertIndexToPosition(toPos);
