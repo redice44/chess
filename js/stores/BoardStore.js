@@ -427,21 +427,51 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
 
 
 
-      // Flagging En Passant
       if (getPieceType(action.id) === PieceTypes.PAWN) {
         const [x, y] = convertIndexToPosition(pieces[action.id]);
         const [toX, toY] = convertIndexToPosition(action.pos);
+
         if (pieceColor === PieceColors.WHITE) {
+          // Capturing En Passant
+          if (y === 3 && toX === whiteEnPassant) {
+            const tempIndex = convertPositionToIndex(toX, y);
+            for (let piece in pieces) {
+              if (pieces[piece] === tempIndex) {
+                pieces[piece] = -1;
+              }
+            }
+            whiteEnPassant = -1;
+          }
+
+          // Flagging En Passant
           if (y === 6 && toY === 4) {
             blackEnPassant = x;
           }
         } else {
+          // Capturing En Passant
+          if (y === 4 && toX === blackEnPassant) {
+            const tempIndex = convertPositionToIndex(toX, y);
+            for (let piece in pieces) {
+              if (pieces[piece] === tempIndex) {
+                pieces[piece] = -1;
+              }
+            }
+            blackEnPassant = -1;
+          }
+
+          // Flagging En Passant
           if (y === 1 && toY === 3) {
             whiteEnPassant = x;
           }
         }
       }
 
+      // Remove En Passant Flag
+      if (pieceColor === PieceColors.WHITE && whiteEnPassant !== -1) {
+        whiteEnPassant = -1;
+      } else if (pieceColor === PieceColors.BLACK && blackEnPassant !== -1) {
+        blackEnPassant = -1;
+      }
 
 
       pieces[action.id] = action.pos;
