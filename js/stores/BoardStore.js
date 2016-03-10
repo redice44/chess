@@ -56,7 +56,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       case PieceTypes.ROOK:
         return rookMove(x, y, toX, toY, pieceColor);
       case PieceTypes.KNIGHT:
-        return knightMove(toPos, item);
+        return knightMove(x, y, toX, toY);
       case PieceTypes.BISHOP:
         return bishopMove(toPos, item);
       case PieceTypes.QUEEN:
@@ -72,8 +72,8 @@ let BoardStore = assign({}, EventEmitter.prototype, {
 });
 
 function _checkAxis(axis, start, target, delta, direction, pieceColor) {
-    for (let i = 0; i < delta; i++) {
-    // Traverse the path to the move target
+  // Traverse the path to the move target
+  for (let i = 0; i < delta; i++) {
     let temp = start + i * direction;
     let tempIndex = axis(temp);
     let piece = _pieceAt(tempIndex);
@@ -97,45 +97,26 @@ function _checkAxis(axis, start, target, delta, direction, pieceColor) {
 function rookMove(x, y, toX, toY, pieceColor) {
   if (x === toX) {
     // y-axis
+    const direction = y < toY ? 1 : -1;
 
-    if (y < toY) {
-      // Down
-
-      return _checkAxis((y) => convertPositionToIndex(x, y), y + 1, toY, Math.abs(toY - y), 1, pieceColor);
-    } else {
-      // Up
-
-      return _checkAxis((y) => convertPositionToIndex(x, y), y - 1, toY, Math.abs(toY - y), -1, pieceColor);
-    }
+    return _checkAxis((y) => convertPositionToIndex(x, y), y + 1, toY, Math.abs(toY - y), direction, pieceColor);
   } else if (y === toY) {
     // x-axis
+    const direction = x < toX ? 1 : -1;
 
-    if (x < toX) {
-      // Right
-
-      return _checkAxis((x) => convertPositionToIndex(x, y), x + 1, toX, Math.abs(toX - x), 1, pieceColor);
-    } else {
-      // Left
-      
-      return _checkAxis((x) => convertPositionToIndex(x, y), x - 1, toX, Math.abs(toX - x), -1, pieceColor);
-    }
+    return _checkAxis((x) => convertPositionToIndex(x, y), x + 1, toX, Math.abs(toX - x), direction, pieceColor);
   }
 
   return false;
 }
 
-function knightMove(toPos, item) {
-  const [toX, toY] = convertIndexToPosition(toPos);
-  const [x, y] = convertIndexToPosition(pieces[item.id]);
+function knightMove(x, y, toX, toY) {
   const dx = Math.abs(toX - x);
   const dy = Math.abs(toY - y);
   return (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
 }
 
 function bishopMove(toPos, item) {
-  const [x, y] = convertIndexToPosition(pieces[item.id]);
-  const pieceColor = getPieceColor(item.id);
-  const [toX, toY] = convertIndexToPosition(toPos);
   const dx = toX - x;
   const dy = toY - y;
 
