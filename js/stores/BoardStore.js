@@ -76,14 +76,58 @@ function pawnMove(toPos, item) {
     if (y === 6 ) {
       return toX === x && (toY === 5 || toY === 4);
     } else {
-      return toX === x && toY === y - 1;
+      if (toY === y - 1) {
+        // Moving forward
+        if (toX === x) {
+          for (let piece in pieces) {
+            if (pieces[piece] === toPos) {
+              // There is a piece in front of the pawn
+              return false;
+            }
+          }
+          // There is no piece in front of the pawn
+          return true;
+        } else if (Math.abs(toX - x) === 1) {
+          // One to the left or right
+          for (let piece in pieces) {
+            if (pieces[piece] === toPos && pieceColor !== getPieceColor(piece)) {
+              // Can Diagonally capture
+              return true;
+            }
+          }
+          return false;
+        }
+      }
+      return false;
     }
   } else {
     // Black
     if (y === 1) {
       return toX === x && (toY === 2 || toY === 3);      
     } else {
-      return toX === x && toY === y + 1;
+      if (toY === y + 1) {
+        // Moving forward
+        if (toX === x) {
+          for (let piece in pieces) {
+            if (pieces[piece] === toPos) {
+              // There is a piece in front of the pawn
+              return false;
+            }
+          }
+          // There is no piece in front of the pawn
+          return true;
+        } else if (Math.abs(toX - x) === 1) {
+          // One to the left or right
+          for (let piece in pieces) {
+            if (pieces[piece] === toPos && pieceColor !== getPieceColor(piece)) {
+              // Can Diagonally capture
+              return true;
+            }
+          }
+          return false;
+        }
+      }
+      return false;
     }
   }
   return false;
