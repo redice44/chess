@@ -45,7 +45,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     // Can't move to any space occupied by your own pieces.
     for (let piece in pieces) {
       if (pieces[piece] === toPos && getPieceColor(piece) === pieceColor) {
-        return false;
+        return false; 
       }
     }
 
@@ -82,12 +82,14 @@ function kingMove(toPos, item) {
 
   if (pieceColor === PieceColors.WHITE) {
     // White
-    if (toX === 6 && toY === 7 && whiteCanCastleKings &&
+    if (toX === 6 && toY === 7 && whiteCanCastleKings && 
+      pieces[Pieces.WHITE_ROOK_2] === convertPositionToIndex(7, 7) &&
       !_pieceAt(convertPositionToIndex(5, 7)) && 
       !_pieceAt(convertPositionToIndex(6, 7))) {
         // King's Castle
         return true;
     } else if (toX === 2 && toY === 7 && whiteCanCastleQueens &&
+      pieces[Pieces.WHITE_ROOK_1] === convertPositionToIndex(0, 7) &&
       !_pieceAt(convertPositionToIndex(1, 7)) && 
       !_pieceAt(convertPositionToIndex(2, 7)) &&
       !_pieceAt(convertPositionToIndex(3, 7))) {
@@ -97,11 +99,13 @@ function kingMove(toPos, item) {
   } else if (pieceColor === PieceColors.BLACK) {
     // Black
     if (toX === 6 && toY === 0 && blackCanCastleKings &&
+      pieces[Pieces.BLACK_ROOK_2] === convertPositionToIndex(7, 0) &&
       !_pieceAt(convertPositionToIndex(5, 0)) &&
       !_pieceAt(convertPositionToIndex(6, 0))) {
         // King's Castle
         return true;
     } else if (toX === 2 && toY === 0 && blackCanCastleQueens &&
+      pieces[Pieces.BLACK_ROOK_1] === convertPositionToIndex(0, 0) &&
       !_pieceAt(convertPositionToIndex(1, 0)) &&
       !_pieceAt(convertPositionToIndex(2, 0)) &&
       !_pieceAt(convertPositionToIndex(3, 0))) {
