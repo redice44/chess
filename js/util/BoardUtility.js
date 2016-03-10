@@ -12,14 +12,14 @@ export function convertPositionToIndex(x, y) {
 
 export function setupBoard() {
   let board = {};
-  board[Pieces.BLACK_ROOK_1] = convertPositionToIndex(0, 0);
-  board[Pieces.BLACK_KNIGHT_1] = convertPositionToIndex(1, 0);
-  board[Pieces.BLACK_KNIGHT_2] = convertPositionToIndex(6, 0);
-  board[Pieces.BLACK_ROOK_2] = convertPositionToIndex(7, 0);
+  board[Pieces.BLACK_ROOK_1] = convertPositionToIndex(2, 7);
+  board[Pieces.BLACK_KNIGHT_1] = convertPositionToIndex(1, 3);
+  board[Pieces.BLACK_KNIGHT_2] = convertPositionToIndex(1, 1);
+  board[Pieces.BLACK_ROOK_2] = convertPositionToIndex(3, 1);
 
-  board[Pieces.WHITE_ROOK_1] = convertPositionToIndex(0, 7);
-  board[Pieces.WHITE_KNIGHT_1] = convertPositionToIndex(1, 7);
-  board[Pieces.WHITE_KNIGHT_2] = convertPositionToIndex(6, 7);
+  board[Pieces.WHITE_ROOK_1] = convertPositionToIndex(3, 3);
+  board[Pieces.WHITE_KNIGHT_1] = convertPositionToIndex(3, 6);
+  board[Pieces.WHITE_KNIGHT_2] = convertPositionToIndex(6, 3);
   board[Pieces.WHITE_ROOK_2] = convertPositionToIndex(7, 7);
   return board;
 };

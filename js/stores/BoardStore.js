@@ -36,9 +36,10 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     const pieceType = getPieceType(item.id);
     const pieceColor = getPieceColor(item.id);
     const [toX, toY] = convertIndexToPosition(toPos);
+    const [x, y] = convertIndexToPosition(pieces[item.id]);
 
+    // Can't move to any space occupied by your own pieces.
     for (let piece in pieces) {
-      // If there is a piece collision and it's the same color
       if (pieces[piece] === toPos && getPieceColor(piece) === pieceColor) {
         return false;
       }
@@ -47,11 +48,13 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     // Valid Piece Movement
     switch(pieceType) {
       case PieceTypes.KNIGHT:
-        const [x, y] = convertIndexToPosition(pieces[item.id]);
-        let dx = Math.abs(toX - x);
-        let dy = Math.abs(toY - y);
-        return (dx === 2 && dy === 1) ||
-               (dx === 1 && dy === 2);
+        return knightMove(toPos, item);
+      case PieceTypes.ROOK:
+        return rookMove(toPos, item);
+      case PieceTypes.BISHOP:
+      case PieceTypes.QUEEN:
+      case PieceTypes.KING:
+      case PieceTypes.PAWN:
       default:
         return false;
     }
@@ -59,6 +62,88 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     return true;
   }
 });
+
+function knightMove(toPos, item) {
+  const [toX, toY] = convertIndexToPosition(toPos);
+  const [x, y] = convertIndexToPosition(pieces[item.id]);
+  const dx = Math.abs(toX - x);
+  const dy = Math.abs(toY - y);
+  return (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
+}
+
+function rookMove(toPos, item) {
+  const [x, y] = convertIndexToPosition(pieces[item.id]);
+  const pieceColor = getPieceColor(item.id);
+  const [toX, toY] = convertIndexToPosition(toPos);
+
+  if (x === toX) {
+    // y-axis
+    if (y < toY) {
+      // Go Down
+      let tempY = y;
+      while (tempY < toY) {
+        tempY++;
+        for (let piece in pieces) {
+          let tempIndex = convertPositionToIndex(x, tempY);
+          if (pieces[piece] === tempIndex) {
+            // There is a piece in the way
+            console.log('In the way: ', piece);
+            return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
+          }
+        }
+      }
+    } else {
+      // Go Up
+      let tempY = y;
+      while (tempY > toY ) {
+        tempY--;
+        let tempIndex = convertPositionToIndex(x, tempY);
+        for (let piece in pieces) {
+          if (pieces[piece] === tempIndex) {
+            // There is a piece in the way
+            console.log('In the way: ', piece, pieces[piece]);
+            return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
+          }
+        }
+      }
+    }
+    return true;
+  } else if (y === toY) {
+    // x-axis
+    if (x < toX) {
+      // Go Down
+      let tempX = x;
+      while (tempX < toX) {
+        tempX++;
+        for (let piece in pieces) {
+          let tempIndex = convertPositionToIndex(tempX, y);
+          if (pieces[piece] === tempIndex) {
+            // There is a piece in the way
+            console.log('In the way: ', piece);
+            return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
+          }
+        }
+      }
+    } else {
+      // Go Up
+      let tempX = x;
+      while (tempX > toX ) {
+        tempX--;
+        let tempIndex = convertPositionToIndex(tempX, y);
+        for (let piece in pieces) {
+          if (pieces[piece] === tempIndex) {
+            // There is a piece in the way
+            console.log('In the way: ', piece, pieces[piece]);
+            return getPieceColor(piece) !== pieceColor && tempIndex === toPos;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  return false;
+}
 
 BoardStore.dispatchToken = ChessDispatcher.register((action) => {
   switch(action.type) {
