@@ -14,6 +14,8 @@ let whiteCanCastleKings = true;
 let whiteCanCastleQueens = true;
 let blackCanCastleKings = true;
 let blackCanCastleQueens = true;
+let whiteEnPassant = -1;  // Holds the column of the black pawn that moved two spaces last turn
+let blackEnPassant = -1;
 
 let BoardStore = assign({}, EventEmitter.prototype, {
   emitChange: function() {
@@ -223,6 +225,11 @@ function pawnMove(toPos, item) {
               return true;
             }
           }
+          // En Passant
+          if (y === 3 && toX === whiteEnPassant) {
+            return true;
+          }
+
           return false;
         }
       }
@@ -252,6 +259,12 @@ function pawnMove(toPos, item) {
               return true;
             }
           }
+
+          // En Passant
+          if (y === 4 && toX === blackEnPassant) {
+            return true;
+          }
+
           return false;
         }
       }
@@ -406,6 +419,24 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
           }
         }
       }
+
+
+
+      // Flagging En Passant
+      if (getPieceType(action.id) === PieceTypes.PAWN) {
+        const [x, y] = convertIndexToPosition(pieces[action.id]);
+        const [toX, toY] = convertIndexToPosition(action.pos);
+        if (pieceColor === PieceColors.WHITE) {
+          if (y === 6 && toY === 4) {
+            blackEnPassant = x;
+          }
+        } else {
+          if (y === 1 && toY === 3) {
+            whiteEnPassant = x;
+          }
+        }
+      }
+
 
 
       pieces[action.id] = action.pos;
