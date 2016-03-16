@@ -247,6 +247,22 @@ function _pieceAt(pos) {
   }
 }
 
+function _isInCheck(color) {
+  for (let p in pieces) {
+    // Check to see if it can attack (move to) the king
+    if (pieces[p].color === color) {
+      // 
+      let temp = {};
+      const king = color === PieceColors.BLACK ? Pieces.WHITE_KING : Pieces.BLACK_KING;
+      temp.id = p;
+      if(BoardStore.canMove(pieces[king].pos, temp)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 BoardStore.dispatchToken = ChessDispatcher.register((action) => {
   switch(action.type) {
     case ActionTypes.BOARD_UPDATE:
@@ -366,38 +382,12 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
       // Move Piece
       piece.pos = action.pos;
 
-      // White just moved
-      if (turn === PieceColors.WHITE) {
-        // For all white pieces
-        for (let p in pieces) {
-          // Check to see if it can attack (move to) the king
-          if (pieces[p].color === turn) {
-            // 
-            let temp = {};
-            temp.id = p;
-            if(BoardStore.canMove(pieces[Pieces.BLACK_KING].pos, temp)) {
-              console.log('Check: ' + p);
-            }
-          }
-        }
-        turn = PieceColors.BLACK;
-
-      // Black just moved
-      } else {
-        for (let p in pieces) {
-          // Check to see if it can attack (move to) the king
-          if (pieces[p].color === turn) {
-            // 
-            let temp = {};
-            temp.id = p;
-            if(BoardStore.canMove(pieces[Pieces.WHITE_KING].pos, temp)) {
-              console.log('Check: ' + p);
-            }
-          }
-        }
-        turn = PieceColors.WHITE;
-
+      if (_isInCheck(turn)) {
+        console.log(turn + ' Check');
       }
+
+      turn = turn === PieceColors.WHITE ? PieceColors.BLACK : PieceColors.WHITE;
+
 
       BoardStore.emitChange();
       break;
