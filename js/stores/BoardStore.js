@@ -39,20 +39,22 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     return turn;
   },
 
-  // Filter out all of the moves that are invalid.
+  // Called once per square
+  // True: Valid move square
+  // False: Invalid move square
   canMove: function(toPos, item) {
-    const [x, y] = convertIndexToPosition(pieces[item.id]);
+    const piece = pieces[item.id];
+    const pieceAt = _pieceAt(toPos);
+    const [x, y] = convertIndexToPosition(piece.pos);
     const [toX, toY] = convertIndexToPosition(toPos);
-    const pieceColor = getPieceColor(item.id);
-    const pieceType = getPieceType(item.id);
 
     // Can't move to any space occupied by your own pieces.
-    if (getPieceColor(_pieceAt(toPos)) === pieceColor) {
+    if (pieceAt && _pieceAt(toPos).color === piece.color) {
       return false;
     }
 
     // Valid Piece Movement
-    switch(pieceType) {
+    switch(piece.type) {
       case PieceTypes.ROOK:
         return rookMove(x, y, toX, toY);
       case PieceTypes.KNIGHT:
@@ -62,9 +64,9 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       case PieceTypes.QUEEN:
         return queenMove(x, y, toX, toY);
       case PieceTypes.KING:
-        return kingMove(x, y, toX, toY, pieceColor);
+        return kingMove(x, y, toX, toY, piece.color);
       case PieceTypes.PAWN:
-        return pawnMove(x, y, toX, toY, pieceColor);
+        return pawnMove(x, y, toX, toY, piece.color);
       default:
         // Do Nothing
     }
@@ -233,8 +235,8 @@ function pawnMove(x, y, toX, toY, pieceColor) {
 
 function _pieceAt(pos) {
   for (let piece in pieces) {
-    if (pieces[piece] === pos) {
-      return piece;
+    if (pieces[piece].pos === pos) {
+      return pieces[piece];
     }
   }
 }
