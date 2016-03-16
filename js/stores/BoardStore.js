@@ -249,37 +249,41 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
       break;
     case ActionTypes.PIECE_UPDATE:
       const piece = pieces[action.id];
-
       let pieceAt = _pieceAt(action.pos);
+
       if (pieceAt) {
         // Piece Capture
         pieceAt.pos = -1;
       }
 
-      // Move Piece
-      piece.pos = action.pos;
 
       // Castling
       if (piece.type === PieceTypes.KING) {
+        // White
         if (piece.color === PieceColors.WHITE) {
-          // White
-          if (action.pos === convertPositionToIndex(6, 7)) {
-            // King's Castle
-            pieces[Pieces.WHITE_ROOK_2] = convertPositionToIndex(5, 7);
-          } else if (action.pos === convertPositionToIndex(2, 7)) {
-            // Queen's Castle
-            pieces[Pieces.WHITE_ROOK_1] = convertPositionToIndex(3, 7);
+          // King's Castle
+          if (piece.pos === convertPositionToIndex(6, 7)) {
+            pieces[Pieces.WHITE_ROOK_2].pos = convertPositionToIndex(5, 7);
+
+          // Queen's Castle
+          } else if (piece.pos === convertPositionToIndex(2, 7)) {
+            pieces[Pieces.WHITE_ROOK_1].pos = convertPositionToIndex(3, 7);
           }
+
           whiteCanCastleKings = false;
           whiteCanCastleQueens = false;
+
+        // Black
         } else {
-          // Black
-          if (action.pos === convertPositionToIndex(6, 0)) {
-            // King's Castle
-            pieces[Pieces.BLACK_ROOK_2] = convertPositionToIndex(5, 0);
-          } else if (action.pos === convertPositionToIndex(2, 0)) {
-            pieces[Pieces.BLACK_ROOK_1] = convertPositionToIndex(3, 0);
+          // King's Castle
+          if (piece.pos === convertPositionToIndex(6, 0)) {
+            pieces[Pieces.BLACK_ROOK_2].pos = convertPositionToIndex(5, 0);
+
+          // Queen's Castle
+          } else if (piece.pos === convertPositionToIndex(2, 0)) {
+            pieces[Pieces.BLACK_ROOK_1].pos = convertPositionToIndex(3, 0);
           }
+
           blackCanCastleKings = false;
           blackCanCastleQueens = false;
         }
@@ -319,12 +323,7 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
 
           // Capturing En Passant
           } else if (y === 3 && toX === whiteEnPassant) {
-            const tempIndex = convertPositionToIndex(toX, y);
-            for (let piece in pieces) {
-              if (pieces[piece] === tempIndex) {
-                pieces[piece] = -1;
-              }
-            }
+            _pieceAt(convertPositionToIndex(toX, y)).pos = -1;
             whiteEnPassant = -1;
 
           // Flagging En Passant
@@ -339,12 +338,7 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
             piece.type = PieceTypes.QUEEN; 
           // Capturing En Passant
           } else if (y === 4 && toX === blackEnPassant) {
-            const tempIndex = convertPositionToIndex(toX, y);
-            for (let piece in pieces) {
-              if (pieces[piece] === tempIndex) {
-                pieces[piece] = -1;
-              }
-            }
+            _pieceAt(convertPositionToIndex(toX, y)).pos = -1;
             blackEnPassant = -1;
           }
 
@@ -362,6 +356,9 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
         blackEnPassant = -1;
       }
 
+
+      // Move Piece
+      piece.pos = action.pos;
 
       turn = turn === PieceColors.WHITE ? PieceColors.BLACK : PieceColors.WHITE;
       BoardStore.emitChange();
