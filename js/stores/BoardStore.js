@@ -248,12 +248,13 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
     case ActionTypes.PIECE_UPDATE:
       const pieceColor = getPieceColor(action.id);
 
-      for (let piece in pieces) {
-        // If there is a piece collision and it's not the same color
-        if (pieces[piece] === action.pos && getPieceColor(piece) !== pieceColor) {
-          // Piece Capture
-          pieces[piece] = -1;
-        }
+      // Move Piece
+      pieces[action.id] = action.pos;
+
+      let temp = _pieceAt(action.pos);
+      if (temp && getPieceColor(temp) !== pieceColor) {
+        // Piece Capture
+        pieces[temp] = -1;
       }
 
       // Castling
@@ -305,12 +306,18 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
         const [x, y] = convertIndexToPosition(pieces[action.id]);
         const [toX, toY] = convertIndexToPosition(action.pos);
 
+        // White
         if (pieceColor === PieceColors.WHITE) {
           // Promotion
+          if (toY === 0) {
+            // Auto Promote to Queen
+            // Handle Dialog later
+            pieces[action.id] = -1;
+            pieces[Pieces.WHITE_QUEEN] = action.pos;
 
 
           // Capturing En Passant
-          if (y === 3 && toX === whiteEnPassant) {
+          } else if (y === 3 && toX === whiteEnPassant) {
             const tempIndex = convertPositionToIndex(toX, y);
             for (let piece in pieces) {
               if (pieces[piece] === tempIndex) {
@@ -318,12 +325,13 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
               }
             }
             whiteEnPassant = -1;
-          }
 
           // Flagging En Passant
-          if (y === 6 && toY === 4) {
+          } else if (y === 6 && toY === 4) {
             blackEnPassant = x;
           }
+
+        // Black
         } else {
           // Capturing En Passant
           if (y === 4 && toX === blackEnPassant) {
@@ -351,7 +359,6 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
       }
 
 
-      pieces[action.id] = action.pos;
       turn = turn === PieceColors.WHITE ? PieceColors.BLACK : PieceColors.WHITE;
       BoardStore.emitChange();
       break;

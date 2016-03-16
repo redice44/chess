@@ -29,8 +29,9 @@ class Board extends Component {
       Squares.push(this._renderSquare(i));
     }
 
-    for (let piece in pieces) {
-      Squares[pieces[piece]] = this._renderPiece(pieces[piece], piece, turn);
+    for (let id in pieces) {
+      // Squares[pieces[piece]] = this._renderPiece(pieces[piece], piece, turn);
+      Squares[pieces[id].pos] = this._renderPiece(id, pieces[id], turn);
     }
 
     return (
@@ -49,40 +50,39 @@ class Board extends Component {
     );
   }
 
-  _renderPiece(i, id, turn) {
-    const [x, y] = convertIndexToPosition(i);
-    const pieceType = getPieceType(id);
-    const myTurn = getPieceColor(id) === turn;
+  _renderPiece(id, piece, turn) {
+    const myTurn = piece.color === turn;
 
-    let piece = null;
+    let pieceComponent = null;
 
-    switch(pieceType) {
+    switch(piece.type) {
       case PieceTypes.KNIGHT:
-        piece = <Knight id = {id} myTurn={myTurn} />;
+        pieceComponent = <Knight id = {id} myTurn={myTurn} black = {piece.color === PieceColors.BLACK} />;
         break;
       case PieceTypes.ROOK:
-        piece = <Rook id = {id} myTurn={myTurn} />;
+        pieceComponent = <Rook id = {id} myTurn={myTurn} black = {piece.color === PieceColors.BLACK} />;
         break;
       case PieceTypes.BISHOP:
-        piece = <Bishop id = {id} myTurn = {myTurn} />;
+        pieceComponent = <Bishop id = {id} myTurn = {myTurn} black = {piece.color === PieceColors.BLACK} />;
         break;
       case PieceTypes.QUEEN:
-        piece = <Queen id = {id} myTurn = {myTurn} />;
+        pieceComponent = <Queen id = {id} myTurn = {myTurn} black = {piece.color === PieceColors.BLACK} />;
         break;
       case PieceTypes.KING:
-        piece = <King id = {id} myTurn = {myTurn} />;
+        pieceComponent = <King id = {id} myTurn = {myTurn} black = {piece.color === PieceColors.BLACK} />;
         break;
       case PieceTypes.PAWN:
-        piece = <Pawn id = {id} myTurn = {myTurn} />;
+        pieceComponent = <Pawn id = {id} myTurn = {myTurn} black = {piece.color === PieceColors.BLACK} />;
         break;
       default:
         // do nothing
+        console.log('Attempting to render unknown piece.');
     }
 
     return (
-      <div key={i}>
-        <Tile pos={i}>
-          {piece}
+      <div key={piece.pos}>
+        <Tile pos={piece.pos}>
+          {pieceComponent}
         </Tile>
       </div>
     );

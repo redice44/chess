@@ -29,15 +29,15 @@ class Rook extends Component {
   }
 
   render() {
-    const { id, connectDragSource, isDragging } = this.props;
-    const white = '♖';
-    const black = '♜';
+    const { id, black, connectDragSource, isDragging } = this.props;
+    const whitePiece = '♖';
+    const blackPiece = '♜';
     return connectDragSource(
       <div 
         style={{
           opacity: isDragging ? 0.5 : 1
         }}>
-        { getPieceColor(id) === PieceColors.BLACK ? black : white }
+        { black ? blackPiece : whitePiece }
       </div>
     );
   }
