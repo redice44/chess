@@ -11,7 +11,7 @@ import { convertPositionToIndex, convertIndexToPosition } from './../../util/Boa
 
 const squareTarget = {
   canDrop(props, monitor) {
-    return BoardStore.canMove(props.pos, monitor.getItem());
+    return BoardStore.canMove(props.pos, monitor.getItem().id);
   },
 
   drop(props, monitor) {

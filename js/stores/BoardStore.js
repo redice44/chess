@@ -43,7 +43,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
   // True: Valid move square
   // False: Invalid move square
   canMove: function(toPos, item) {
-    const piece = pieces[item.id];
+    const piece = pieces[item];
     const pieceAt = _pieceAt(toPos);
     const [x, y] = convertIndexToPosition(piece.pos);
     const [toX, toY] = convertIndexToPosition(toPos);
@@ -255,7 +255,7 @@ function _isInCheck(color) {
       let temp = {};
       const king = color === PieceColors.BLACK ? Pieces.WHITE_KING : Pieces.BLACK_KING;
       temp.id = p;
-      if(BoardStore.canMove(pieces[king].pos, temp)) {
+      if(BoardStore.canMove(pieces[king].pos, p)) {
         return true;
       }
     }
