@@ -47,9 +47,11 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     const pieceAt = _pieceAt(toPos);
     const [x, y] = convertIndexToPosition(piece.pos);
     const [toX, toY] = convertIndexToPosition(toPos);
+    // console.log('(' + x + ', ' + y + '), (' + toX + ', ' + toY + ')');
 
-    // Can't move to any space occupied by your own pieces.
     if (pieceAt && _pieceAt(toPos).color === piece.color) {
+      // Can't move to any space occupied by your own pieces.
+      // console.log(pieceAt.type);
       return false;
     }
 
@@ -75,12 +77,13 @@ let BoardStore = assign({}, EventEmitter.prototype, {
 
 function _checkLine(x, y, delta, xDir, yDir, target) {
   // Traverse the path to the move target
-  for (let i = 1; i < delta; i++) {
+  for (let i = 1; i <= delta; i++) {
     let tempIndex = convertPositionToIndex(x + i * xDir, y + i * yDir);
-    let piece = _pieceAt(tempIndex);
+    let pieceAt = _pieceAt(tempIndex);
 
     // If there is a piece
-    if (piece) {
+    if (pieceAt) {
+      // console.log(tempIndex, pieceAt);
       // And it is in the way i.e. Not the move target
       // If it's at the target, it must be an enemy
       return tempIndex === target;
@@ -100,12 +103,15 @@ function rookMove(x, y, toX, toY) {
     xDir = 0;
     yDir = y < toY ? 1 : -1;
     delta = Math.abs(toY - y);
+    // console.log('y-axis');
   } else if (y === toY) {
     // x-axis
 
     xDir = x < toX ? 1 : -1;
     yDir = 0;
     delta = Math.abs(toX - x);
+    //console.log(x,y,toX,toY,delta);
+    // console.log('x-axis');
   } else {
     return false;
   }
@@ -360,7 +366,39 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
       // Move Piece
       piece.pos = action.pos;
 
-      turn = turn === PieceColors.WHITE ? PieceColors.BLACK : PieceColors.WHITE;
+      // White just moved
+      if (turn === PieceColors.WHITE) {
+        // For all white pieces
+        for (let p in pieces) {
+          // Check to see if it can attack (move to) the king
+          if (pieces[p].color === turn) {
+            // 
+            let temp = {};
+            temp.id = p;
+            if(BoardStore.canMove(pieces[Pieces.BLACK_KING].pos, temp)) {
+              console.log('Check: ' + p);
+            }
+          }
+        }
+        turn = PieceColors.BLACK;
+
+      // Black just moved
+      } else {
+        for (let p in pieces) {
+          // Check to see if it can attack (move to) the king
+          if (pieces[p].color === turn) {
+            // 
+            let temp = {};
+            temp.id = p;
+            if(BoardStore.canMove(pieces[Pieces.WHITE_KING].pos, temp)) {
+              console.log('Check: ' + p);
+            }
+          }
+        }
+        turn = PieceColors.WHITE;
+
+      }
+
       BoardStore.emitChange();
       break;
     default:
