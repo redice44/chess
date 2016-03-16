@@ -248,20 +248,20 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
       BoardStore.emitChange();
       break;
     case ActionTypes.PIECE_UPDATE:
-      const pieceColor = getPieceColor(action.id);
+      const piece = pieces[action.id];
 
-      // Move Piece
-      pieces[action.id] = action.pos;
-
-      let temp = _pieceAt(action.pos);
-      if (temp && getPieceColor(temp) !== pieceColor) {
+      let pieceAt = _pieceAt(action.pos);
+      if (pieceAt) {
         // Piece Capture
-        pieces[temp] = -1;
+        pieceAt.pos = -1;
       }
 
+      // Move Piece
+      piece.pos = action.pos;
+
       // Castling
-      if (getPieceType(action.id) === PieceTypes.KING) {
-        if (pieceColor === PieceColors.WHITE) {
+      if (piece.type === PieceTypes.KING) {
+        if (piece.color === PieceColors.WHITE) {
           // White
           if (action.pos === convertPositionToIndex(6, 7)) {
             // King's Castle
@@ -286,8 +286,8 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
       }
 
       // Remove Castling eligibility
-      if (getPieceType(action.id) === PieceTypes.ROOK) {
-        if (pieceColor === PieceColors.WHITE) {
+      if (piece.type === PieceTypes.ROOK) {
+        if (piece.color === PieceColors.WHITE) {
           if (action.id === Pieces.WHITE_ROOK_2) {
             whiteCanCastleKings = false;
           } else if (action.id === Pieces.WHITE_ROOK_1) {
@@ -304,18 +304,17 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
 
 
 
-      if (getPieceType(action.id) === PieceTypes.PAWN) {
-        const [x, y] = convertIndexToPosition(pieces[action.id]);
+      if (piece.type === PieceTypes.PAWN) {
+        const [x, y] = convertIndexToPosition(piece.pos);
         const [toX, toY] = convertIndexToPosition(action.pos);
 
         // White
-        if (pieceColor === PieceColors.WHITE) {
+        if (piece.color === PieceColors.WHITE) {
           // Promotion
           if (toY === 0) {
             // Auto Promote to Queen
             // Handle Dialog later
-            pieces[action.id] = -1;
-            pieces[Pieces.WHITE_QUEEN] = action.pos;
+            piece.type = PieceTypes.QUEEN;
 
 
           // Capturing En Passant
@@ -335,8 +334,11 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
 
         // Black
         } else {
+          // Promotion
+          if (toY === 7) {
+            piece.type = PieceTypes.QUEEN; 
           // Capturing En Passant
-          if (y === 4 && toX === blackEnPassant) {
+          } else if (y === 4 && toX === blackEnPassant) {
             const tempIndex = convertPositionToIndex(toX, y);
             for (let piece in pieces) {
               if (pieces[piece] === tempIndex) {
@@ -354,9 +356,9 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
       }
 
       // Remove En Passant Flag
-      if (pieceColor === PieceColors.WHITE && whiteEnPassant !== -1) {
+      if (piece.color === PieceColors.WHITE && whiteEnPassant !== -1) {
         whiteEnPassant = -1;
-      } else if (pieceColor === PieceColors.BLACK && blackEnPassant !== -1) {
+      } else if (piece.color === PieceColors.BLACK && blackEnPassant !== -1) {
         blackEnPassant = -1;
       }
 
