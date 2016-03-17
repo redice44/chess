@@ -43,8 +43,8 @@ let BoardStore = assign({}, EventEmitter.prototype, {
   // Called once per square
   // True: Valid move square
   // False: Invalid move square
-  canMove: function(toPos, item) {
-    let piece = pieces[item];
+  canMove: function(toPos, itemId) {
+    let piece = pieces[itemId];
     let pieceAt = _pieceAt(toPos);
     const [x, y] = convertIndexToPosition(piece.pos);
     const [toX, toY] = convertIndexToPosition(toPos);
@@ -432,6 +432,26 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
 
       if (_isInCheck(turn)) {
         inCheck = true;
+        let hasMoves = false;
+        // Check for Checkmate
+        for (let p in pieces) {
+          // Get opponent pieces to check for valid moves
+          if (pieces[p].color === turn && !hasMoves) {
+            // Check every damn square...
+            for (let i = 0; i < 64 && !hasMoves; i++) {
+              console.log(convertIndexToPosition(i) ,p);
+              if(BoardStore.canMove(i, p)) {
+                console.log('Valid Move: ' + i);
+                hasMoves = true;
+              }
+            }
+          }
+        }
+
+        if (!hasMoves) {
+          console.log('Checkmate!');
+        }
+
         console.log(turn + ' in Check');
       }
 
