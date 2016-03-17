@@ -17,6 +17,7 @@ let blackCanCastleKings = true;
 let blackCanCastleQueens = true;
 let whiteEnPassant = -1;  // Holds the column of the black pawn that moved two spaces last turn
 let blackEnPassant = -1;
+let inCheck = false;
 
 let BoardStore = assign({}, EventEmitter.prototype, {
   emitChange: function() {
@@ -43,13 +44,13 @@ let BoardStore = assign({}, EventEmitter.prototype, {
   // True: Valid move square
   // False: Invalid move square
   canMove: function(toPos, item) {
-    const piece = pieces[item];
-    const pieceAt = _pieceAt(toPos);
+    let piece = pieces[item];
+    let pieceAt = _pieceAt(toPos);
     const [x, y] = convertIndexToPosition(piece.pos);
     const [toX, toY] = convertIndexToPosition(toPos);
-    // console.log('(' + x + ', ' + y + '), (' + toX + ', ' + toY + ')');
+    let validMove = false;
 
-    if (pieceAt && _pieceAt(toPos).color === piece.color) {
+    if (pieceAt && pieceAt.color === piece.color) {
       // Can't move to any space occupied by your own pieces.
       // console.log(pieceAt.type);
       return false;
@@ -58,20 +59,63 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     // Valid Piece Movement
     switch(piece.type) {
       case PieceTypes.ROOK:
-        return rookMove(x, y, toX, toY);
+        validMove = rookMove(x, y, toX, toY);
+        break;
       case PieceTypes.KNIGHT:
-        return knightMove(x, y, toX, toY);
+        validMove = knightMove(x, y, toX, toY);
+        break;
       case PieceTypes.BISHOP:
-        return bishopMove(x, y, toX, toY);
+        validMove = bishopMove(x, y, toX, toY);
+        break;
       case PieceTypes.QUEEN:
-        return queenMove(x, y, toX, toY);
+        validMove = queenMove(x, y, toX, toY);
+        break;
       case PieceTypes.KING:
-        return kingMove(x, y, toX, toY, piece.color);
+        validMove = kingMove(x, y, toX, toY, piece.color);
+        break;
       case PieceTypes.PAWN:
-        return pawnMove(x, y, toX, toY, piece.color);
+        validMove = pawnMove(x, y, toX, toY, piece.color);
+        break;
       default:
         // Do Nothing
     }
+
+
+
+
+
+    if (validMove && inCheck) {
+      // Make a temp move to see if it will still be in check.
+      let temp = piece.pos;
+      let tempAt = -1;
+
+      piece.pos = toPos;
+
+      if (pieceAt) {
+        tempAt = pieceAt.pos;
+        pieceAt.pos = -1;
+      }
+
+      // Required to skip this block in the temp move Check validation
+      inCheck = false;
+
+      // If the king remains in check it is not a valid move
+      if(_isInCheck(turn)) {
+        validMove = false;
+      } 
+
+      // Reset the flag
+      inCheck = true;
+
+
+      piece.pos = temp;
+
+      if (pieceAt) {
+        pieceAt.pos = tempAt;
+      }
+    }
+
+    return validMove;
   }
 });
 
@@ -247,14 +291,14 @@ function _pieceAt(pos) {
   }
 }
 
+// Checks to see if the color passed is in check
 function _isInCheck(color) {
+  const opponent = color === PieceColors.BLACK ? PieceColors.WHITE : PieceColors.BLACK;
+
   for (let p in pieces) {
     // Check to see if it can attack (move to) the king
-    if (pieces[p].color === color) {
-      // 
-      let temp = {};
-      const king = color === PieceColors.BLACK ? Pieces.WHITE_KING : Pieces.BLACK_KING;
-      temp.id = p;
+    if (pieces[p].color === opponent) {
+      const king = opponent === PieceColors.BLACK ? Pieces.WHITE_KING : Pieces.BLACK_KING;
       if(BoardStore.canMove(pieces[king].pos, p)) {
         return true;
       }
@@ -272,6 +316,9 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
     case ActionTypes.PIECE_UPDATE:
       const piece = pieces[action.id];
       let pieceAt = _pieceAt(action.pos);
+
+      // Valid moves only at this point, so check cannot continue to exist
+      inCheck = false;
 
       if (pieceAt) {
         // Piece Capture
@@ -381,12 +428,13 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
 
       // Move Piece
       piece.pos = action.pos;
+      turn = turn === PieceColors.WHITE ? PieceColors.BLACK : PieceColors.WHITE;
 
       if (_isInCheck(turn)) {
-        console.log(turn + ' Check');
+        inCheck = true;
+        console.log(turn + ' in Check');
       }
 
-      turn = turn === PieceColors.WHITE ? PieceColors.BLACK : PieceColors.WHITE;
 
 
       BoardStore.emitChange();
