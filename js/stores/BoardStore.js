@@ -240,7 +240,9 @@ function pawnMove(x, y, toX, toY, pieceColor) {
   if (pieceColor === PieceColors.WHITE) {
     // White
     // First Move
-    if (y === 6 && (toX === x && (toY === 5 || toY === 4))) {
+    if (!_pieceAt(convertPositionToIndex(toX, toY)) && 
+        !_pieceAt(convertPositionToIndex(toX, toY + 1)) &&
+        y === 6 && (toX === x && (toY === 5 || toY === 4))) {
       return true;
     }
 
@@ -259,7 +261,9 @@ function pawnMove(x, y, toX, toY, pieceColor) {
     }    
   } else {
     // Black
-    if (y === 1 && (toX === x && (toY === 2 || toY === 3))) {
+    if (!_pieceAt(convertPositionToIndex(toX, toY)) && 
+        !_pieceAt(convertPositionToIndex(toX, toY - 1)) &&
+        y === 1 && (toX === x && (toY === 2 || toY === 3))) {
       return true;
     }
 
