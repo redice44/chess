@@ -11,6 +11,7 @@ const CHANGE_EVENT = 'change';
 let pieces = {};
 let promotions = {};
 let turn = PieceColors.WHITE;
+
 let whiteCanCastleKings = true;
 let whiteCanCastleQueens = true;
 let blackCanCastleKings = true;
@@ -198,14 +199,15 @@ function kingMove(x, y, toX, toY, pieceColor) {
 
   if (pieceColor === PieceColors.WHITE) {
     // White
-    if (toX === 6 && toY === 7 && whiteCanCastleKings && 
-      pieces[Pieces.WHITE_ROOK_2] === convertPositionToIndex(7, 7) &&
+    if (toX === 6 && toY === 7 && 
+      whiteCanCastleKings && 
+      pieces[Pieces.WHITE_ROOK_2].pos === convertPositionToIndex(7, 7) &&
       !_pieceAt(convertPositionToIndex(5, 7)) && 
       !_pieceAt(convertPositionToIndex(6, 7))) {
         // King's Castle
         return true;
     } else if (toX === 2 && toY === 7 && whiteCanCastleQueens &&
-      pieces[Pieces.WHITE_ROOK_1] === convertPositionToIndex(0, 7) &&
+      pieces[Pieces.WHITE_ROOK_1].pos === convertPositionToIndex(0, 7) &&
       !_pieceAt(convertPositionToIndex(1, 7)) && 
       !_pieceAt(convertPositionToIndex(2, 7)) &&
       !_pieceAt(convertPositionToIndex(3, 7))) {
@@ -215,13 +217,13 @@ function kingMove(x, y, toX, toY, pieceColor) {
   } else if (pieceColor === PieceColors.BLACK) {
     // Black
     if (toX === 6 && toY === 0 && blackCanCastleKings &&
-      pieces[Pieces.BLACK_ROOK_2] === convertPositionToIndex(7, 0) &&
+      pieces[Pieces.BLACK_ROOK_2].pos === convertPositionToIndex(7, 0) &&
       !_pieceAt(convertPositionToIndex(5, 0)) &&
       !_pieceAt(convertPositionToIndex(6, 0))) {
         // King's Castle
         return true;
     } else if (toX === 2 && toY === 0 && blackCanCastleQueens &&
-      pieces[Pieces.BLACK_ROOK_1] === convertPositionToIndex(0, 0) &&
+      pieces[Pieces.BLACK_ROOK_1].pos === convertPositionToIndex(0, 0) &&
       !_pieceAt(convertPositionToIndex(1, 0)) &&
       !_pieceAt(convertPositionToIndex(2, 0)) &&
       !_pieceAt(convertPositionToIndex(3, 0))) {
@@ -335,11 +337,11 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
         // White
         if (piece.color === PieceColors.WHITE) {
           // King's Castle
-          if (piece.pos === convertPositionToIndex(6, 7)) {
+          if (action.pos === convertPositionToIndex(6, 7)) {
             pieces[Pieces.WHITE_ROOK_2].pos = convertPositionToIndex(5, 7);
 
           // Queen's Castle
-          } else if (piece.pos === convertPositionToIndex(2, 7)) {
+          } else if (action.pos === convertPositionToIndex(2, 7)) {
             pieces[Pieces.WHITE_ROOK_1].pos = convertPositionToIndex(3, 7);
           }
 
@@ -349,11 +351,11 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
         // Black
         } else {
           // King's Castle
-          if (piece.pos === convertPositionToIndex(6, 0)) {
+          if (action.pos === convertPositionToIndex(6, 0)) {
             pieces[Pieces.BLACK_ROOK_2].pos = convertPositionToIndex(5, 0);
 
           // Queen's Castle
-          } else if (piece.pos === convertPositionToIndex(2, 0)) {
+          } else if (action.pos === convertPositionToIndex(2, 0)) {
             pieces[Pieces.BLACK_ROOK_1].pos = convertPositionToIndex(3, 0);
           }
 
