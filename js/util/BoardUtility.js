@@ -10,6 +10,10 @@ export function convertPositionToIndex(x, y) {
   return y * 8 + x;
 }
 
+export function invertColor(color) {
+  return color === PieceColors.BLACK ? PieceColors.WHITE : PieceColors.BLACK;
+}
+
 export function setupBoard() {
   let board = {};
 

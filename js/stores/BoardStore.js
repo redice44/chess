@@ -4,7 +4,7 @@ import assign from 'object-assign';
 import { EventEmitter } from 'events';
 import ChessDispatcher from './../dispatcher/ChessDispatcher.js';
 import { ActionTypes, Pieces, PieceTypes, PieceColors } from './../constants/ChessConstants.js';
-import { getPieceType, getPieceColor, convertIndexToPosition, convertPositionToIndex } from './../util/BoardUtility.js';
+import { invertColor, getPieceType, getPieceColor, convertIndexToPosition, convertPositionToIndex } from './../util/BoardUtility.js';
 
 const CHANGE_EVENT = 'change';
 
@@ -200,33 +200,45 @@ function kingMove(x, y, toX, toY, pieceColor) {
   if (pieceColor === PieceColors.WHITE) {
     // White
     if (toX === 6 && toY === 7 && 
-      whiteCanCastleKings && 
+      whiteCanCastleKings && !inCheck &&
       pieces[Pieces.WHITE_ROOK_2].pos === convertPositionToIndex(7, 7) &&
       !_pieceAt(convertPositionToIndex(5, 7)) && 
-      !_pieceAt(convertPositionToIndex(6, 7))) {
+      !_pieceAt(convertPositionToIndex(6, 7)) &&
+      !_canAttack(PieceColors.BLACK, convertPositionToIndex(5, 7)) &&
+      !_canAttack(PieceColors.BLACK, convertPositionToIndex(6, 7))) {
         // King's Castle
         return true;
-    } else if (toX === 2 && toY === 7 && whiteCanCastleQueens &&
+    } else if (toX === 2 && toY === 7 && 
+      whiteCanCastleQueens && !inCheck &&
       pieces[Pieces.WHITE_ROOK_1].pos === convertPositionToIndex(0, 7) &&
       !_pieceAt(convertPositionToIndex(1, 7)) && 
       !_pieceAt(convertPositionToIndex(2, 7)) &&
-      !_pieceAt(convertPositionToIndex(3, 7))) {
+      !_pieceAt(convertPositionToIndex(3, 7)) &&
+      !_canAttack(PieceColors.BLACK, convertPositionToIndex(1, 7)) &&
+      !_canAttack(PieceColors.BLACK, convertPositionToIndex(2, 7)) &&
+      !_canAttack(PieceColors.BLACK, convertPositionToIndex(3, 7))) {
         // Queen's Castle
         return true;
     }
   } else if (pieceColor === PieceColors.BLACK) {
     // Black
-    if (toX === 6 && toY === 0 && blackCanCastleKings &&
+    if (toX === 6 && toY === 0 && 
+      blackCanCastleKings && !inCheck &&
       pieces[Pieces.BLACK_ROOK_2].pos === convertPositionToIndex(7, 0) &&
       !_pieceAt(convertPositionToIndex(5, 0)) &&
-      !_pieceAt(convertPositionToIndex(6, 0))) {
+      !_pieceAt(convertPositionToIndex(6, 0)) &&
+      !_canAttack(PieceColors.WHITE, convertPositionToIndex(5, 0)) &&
+      !_canAttack(PieceColors.WHITE, convertPositionToIndex(6, 0))) {
         // King's Castle
         return true;
-    } else if (toX === 2 && toY === 0 && blackCanCastleQueens &&
+    } else if (toX === 2 && toY === 0 && 
+      blackCanCastleQueens && !inCheck &&
       pieces[Pieces.BLACK_ROOK_1].pos === convertPositionToIndex(0, 0) &&
       !_pieceAt(convertPositionToIndex(1, 0)) &&
       !_pieceAt(convertPositionToIndex(2, 0)) &&
-      !_pieceAt(convertPositionToIndex(3, 0))) {
+      !_pieceAt(convertPositionToIndex(3, 0)) &&
+      !_canAttack(PieceColors.WHITE, convertPositionToIndex(2, 0)) &&
+      !_canAttack(PieceColors.WHITE, convertPositionToIndex(3, 0))) {
         // Queen's Castle
         return true;
     }
@@ -297,20 +309,22 @@ function _pieceAt(pos) {
   }
 }
 
-// Checks to see if the color passed is in check
-function _isInCheck(color) {
-  const opponent = color === PieceColors.BLACK ? PieceColors.WHITE : PieceColors.BLACK;
-
+// Can color attack the target
+function _canAttack(color, target) {
   for (let p in pieces) {
-    // Check to see if it can attack (move to) the king
-    if (pieces[p].color === opponent) {
-      const king = opponent === PieceColors.BLACK ? Pieces.WHITE_KING : Pieces.BLACK_KING;
-      if(BoardStore.canMove(pieces[king].pos, p)) {
+    if (pieces[p].color === color) {
+      if(BoardStore.canMove(target, p)) {
         return true;
       }
     }
   }
   return false;
+}
+
+// Checks to see if the color passed is in check
+function _isInCheck(color) {
+  const king = color === PieceColors.BLACK ? pieces[Pieces.BLACK_KING].pos : pieces[Pieces.WHITE_KING].pos;
+  return _canAttack(invertColor(color), king);
 }
 
 BoardStore.dispatchToken = ChessDispatcher.register((action) => {
