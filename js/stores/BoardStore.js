@@ -42,7 +42,6 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     return turn;
   },
 
-  // Called once per square
   // True: Valid move square
   // False: Invalid move square
   canMove: function(toPos, itemId) {
@@ -52,13 +51,12 @@ let BoardStore = assign({}, EventEmitter.prototype, {
     const [toX, toY] = convertIndexToPosition(toPos);
     let validMove = false;
 
+    // Can't move to any space occupied by your own pieces.
     if (pieceAt && pieceAt.color === piece.color) {
-      // Can't move to any space occupied by your own pieces.
-      // console.log(pieceAt.type);
+      // Escape out. No need to run any other validation
       return false;
     }
 
-    // Valid Piece Movement
     switch(piece.type) {
       case PieceTypes.ROOK:
         validMove = rookMove(x, y, toX, toY);
@@ -80,6 +78,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
         break;
       default:
         // Do Nothing
+        console.error('Unknown Piece Type: ' + piece.type);
     }
 
 
@@ -98,7 +97,6 @@ let BoardStore = assign({}, EventEmitter.prototype, {
         pieceAt.pos = -1;
       }
 
-      // Required to skip this block in the temp move Check validation
       tempMove = true;
 
       // If the king remains in check it is not a valid move
@@ -106,9 +104,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
         validMove = false;
       } 
 
-      // Reset the flag
       tempMove = false;
-
 
       piece.pos = temp;
 
@@ -121,6 +117,14 @@ let BoardStore = assign({}, EventEmitter.prototype, {
   }
 });
 
+/*
+  x, y: Position of the piece moving
+  delta: How far along the line to validate
+  xDir: Modifer for x. Determines which direction, if any, to go.
+  yDir: Modifer for y. Determines which direction, if any, to go.
+  target: The target position to move to
+*/
+
 function _checkLine(x, y, delta, xDir, yDir, target) {
   // Traverse the path to the move target
   for (let i = 1; i <= delta; i++) {
@@ -128,10 +132,9 @@ function _checkLine(x, y, delta, xDir, yDir, target) {
     let pieceAt = _pieceAt(tempIndex);
 
     // If there is a piece
+    // And it is in the way i.e. Not the move target
+    // And if it's at the target, it must be an enemy
     if (pieceAt) {
-      // console.log(tempIndex, pieceAt);
-      // And it is in the way i.e. Not the move target
-      // If it's at the target, it must be an enemy
       return tempIndex === target;
     }
   }
@@ -149,15 +152,12 @@ function rookMove(x, y, toX, toY) {
     xDir = 0;
     yDir = y < toY ? 1 : -1;
     delta = Math.abs(toY - y);
-    // console.log('y-axis');
   } else if (y === toY) {
     // x-axis
 
     xDir = x < toX ? 1 : -1;
     yDir = 0;
     delta = Math.abs(toX - x);
-    //console.log(x,y,toX,toY,delta);
-    // console.log('x-axis');
   } else {
     return false;
   }
@@ -177,6 +177,7 @@ function bishopMove(x, y, toX, toY) {
 
   let xDir, yDir, delta;
 
+  // On a diagonal
   if (Math.abs(dx) === Math.abs(dy)) {
     dx > 0 ? xDir = 1 : xDir = -1;
     dy > 0 ? yDir = 1 : yDir = -1;
@@ -185,7 +186,6 @@ function bishopMove(x, y, toX, toY) {
     return false;
   }
   return _checkLine(x, y, delta, xDir, yDir, convertPositionToIndex(toX, toY));
-  
 }
 
 function queenMove(x, y, toX, toY) {
@@ -460,9 +460,7 @@ BoardStore.dispatchToken = ChessDispatcher.register((action) => {
           if (pieces[p].color === turn && !hasMoves) {
             // Check every damn square...
             for (let i = 0; i < 64 && !hasMoves; i++) {
-              console.log(convertIndexToPosition(i) ,p);
               if(BoardStore.canMove(i, p)) {
-                console.log('Valid Move: ' + i);
                 hasMoves = true;
               }
             }
