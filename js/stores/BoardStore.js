@@ -19,6 +19,7 @@ let blackCanCastleQueens = true;
 let whiteEnPassant = -1;  // Holds the column of the black pawn that moved two spaces last turn
 let blackEnPassant = -1;
 let inCheck = false;
+let tempMove = false;
 
 let BoardStore = assign({}, EventEmitter.prototype, {
   emitChange: function() {
@@ -85,7 +86,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
 
 
 
-    if (validMove && inCheck) {
+    if (validMove && !tempMove) {
       // Make a temp move to see if it will still be in check.
       let temp = piece.pos;
       let tempAt = -1;
@@ -98,7 +99,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       }
 
       // Required to skip this block in the temp move Check validation
-      inCheck = false;
+      tempMove = true;
 
       // If the king remains in check it is not a valid move
       if(_isInCheck(turn)) {
@@ -106,7 +107,7 @@ let BoardStore = assign({}, EventEmitter.prototype, {
       } 
 
       // Reset the flag
-      inCheck = true;
+      tempMove = false;
 
 
       piece.pos = temp;
